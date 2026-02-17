@@ -1,0 +1,21 @@
+import DashboardOutlined from "@mui/icons-material/DashboardOutlined";
+import StorefrontOutlined from "@mui/icons-material/StorefrontOutlined";
+import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
+import PeopleOutline from "@mui/icons-material/PeopleOutline";
+import FactCheckOutlined from "@mui/icons-material/FactCheckOutlined";
+
+export const ROLE_NAVIGATION = {
+  admin: [
+    { key: "overview", label: "System Dashboard", icon: DashboardOutlined },
+    { key: "businesses", label: "Business Management", icon: StorefrontOutlined },
+    { key: "users", label: "User Management", icon: PeopleOutline },
+    { key: "products", label: "Products", icon: Inventory2Outlined },
+  ],
+  business_owner: [
+    { key: "overview", label: "Business Dashboard", icon: DashboardOutlined },
+    { key: "users", label: "User Management", icon: PeopleOutline },
+    { key: "products", label: "Products", icon: Inventory2Outlined },
+  ],
+  editor: [{ key: "products", label: "Product Management", icon: Inventory2Outlined }],
+  approver: [{ key: "approvals", label: "Approvals", icon: FactCheckOutlined }],
+};

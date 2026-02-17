@@ -1,0 +1,25 @@
+{
+  "name": "product-marketplace-client",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@hookform/resolvers": "3.9.0",
+    "@mui/icons-material": "5.16.7",
+    "@mui/material": "^5.16.7",
+    "@tanstack/react-query": "5.51.1",
+    "axios": "^1.13.5",
+    "next": "^16.1.6",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "7.52.1",
+    "zod": "3.23.8"
+  }
+}
