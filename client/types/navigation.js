@@ -4,6 +4,7 @@ import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
 import PeopleOutline from "@mui/icons-material/PeopleOutline";
 import FactCheckOutlined from "@mui/icons-material/FactCheckOutlined";
 import CheckCircleOutline from "@mui/icons-material/CheckCircleOutline";
+import HighlightOffOutlined from "@mui/icons-material/HighlightOffOutlined";
 
 export const ROLE_NAVIGATION = {
   admin: [
@@ -20,6 +21,7 @@ export const ROLE_NAVIGATION = {
   editor: [
     { key: "pending", label: "Pending", icon: FactCheckOutlined },
     { key: "confirmed", label: "Confirmed", icon: CheckCircleOutline },
+    { key: "rejected", label: "Rejected", icon: HighlightOffOutlined },
   ],
   approver: [
     { key: "pending", label: "Pending", icon: FactCheckOutlined },

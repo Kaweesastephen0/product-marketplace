@@ -27,9 +27,13 @@ class ProductService:
         if business is None:
             raise ValidationError("Business must be provided.")
 
+        if validated_data.get("image") is not None:
+            validated_data["image_url"] = ""
+
         product = business.products.create(
             created_by=user,
             status=ProductStatus.DRAFT,
+            rejection_reason="",
             **validated_data,
         )
         ProductService._invalidate_public_product_cache()
@@ -51,6 +55,11 @@ class ProductService:
         if user.role_code == Roles.EDITOR and product.status == ProductStatus.PENDING_APPROVAL:
             raise ValidationError("Pending approval products cannot be edited by editors.")
 
+        if validated_data.get("image") is not None:
+            validated_data["image_url"] = ""
+        elif validated_data.get("image_url"):
+            validated_data["image"] = None
+
         requested_business = validated_data.pop("business", None)
         if requested_business is not None and not user.has_role(Roles.ADMIN):
             raise PermissionDenied("Only admins can re-assign product business.")
@@ -62,6 +71,8 @@ class ProductService:
 
         if product.status == ProductStatus.APPROVED:
             product.status = ProductStatus.PENDING_APPROVAL
+        if product.status in {ProductStatus.DRAFT, ProductStatus.PENDING_APPROVAL}:
+            product.rejection_reason = ""
 
         product.save()
         ProductService._invalidate_public_product_cache()
@@ -81,11 +92,12 @@ class ProductService:
         if user.role_code not in PRODUCT_EDIT_ROLES and not user.is_superuser:
             raise PermissionDenied("You do not have permission to submit products.")
 
-        if product.status not in {ProductStatus.DRAFT}:
-            raise ValidationError("Only draft products can be submitted for approval.")
+        if product.status not in {ProductStatus.DRAFT, ProductStatus.REJECTED}:
+            raise ValidationError("Only draft or rejected products can be submitted for approval.")
 
         product.status = ProductStatus.PENDING_APPROVAL
-        product.save(update_fields=["status", "updated_at"])
+        product.rejection_reason = ""
+        product.save(update_fields=["status", "rejection_reason", "updated_at"])
         ProductService._invalidate_public_product_cache()
         AuditService.log(
             action="product_submitted",
@@ -120,14 +132,17 @@ class ProductService:
 
     @staticmethod
     @transaction.atomic
-    def reject_product(*, user, product):
+    def reject_product(*, user, product, reason):
         if user.role_code not in PRODUCT_APPROVE_ROLES and not user.is_superuser:
             raise PermissionDenied("Only approver/admin role can reject products.")
         if product.status != ProductStatus.PENDING_APPROVAL:
             raise ValidationError("Only pending products can be rejected.")
+        if not reason or not str(reason).strip():
+            raise ValidationError("Rejection reason is required.")
 
-        product.status = ProductStatus.DRAFT
-        product.save(update_fields=["status", "updated_at"])
+        product.status = ProductStatus.REJECTED
+        product.rejection_reason = str(reason).strip()
+        product.save(update_fields=["status", "rejection_reason", "updated_at"])
         ProductService._invalidate_public_product_cache()
         AuditService.log(
             action="product_rejected",
@@ -135,7 +150,7 @@ class ProductService:
             business=product.business,
             target_type="product",
             target_id=product.id,
-            metadata={"status": product.status},
+            metadata={"status": product.status, "reason": product.rejection_reason},
         )
         return product
 

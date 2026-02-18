@@ -46,12 +46,16 @@ def test_admin_can_create_business_owner(api_client, auth_tokens):
             "business_name": "Acme Corp",
             "owner_email": "owner@acme.com",
             "owner_password": "Passw0rd!",
+            "owner_first_name": "Ada",
+            "owner_last_name": "Lovelace",
         },
         format="json",
     )
 
     assert response.status_code == 201
     assert response.json()["role"] == Roles.BUSINESS_OWNER
+    assert response.json()["first_name"] == "Ada"
+    assert response.json()["last_name"] == "Lovelace"
 
 
 @pytest.mark.django_db
@@ -80,10 +84,17 @@ def test_owner_can_create_editor_and_approver_only(api_client, auth_tokens):
 
     create_editor = api_client.post(
         "/api/users/",
-        {"email": "editor@biz.com", "password": "Passw0rd!", "role": Roles.EDITOR},
+        {
+            "email": "editor@biz.com",
+            "password": "Passw0rd!",
+            "role": Roles.EDITOR,
+            "first_name": "Ed",
+            "last_name": "Itor",
+        },
         format="json",
     )
     assert create_editor.status_code == 201
+    assert create_editor.json()["first_name"] == "Ed"
 
     create_viewer = api_client.post(
         "/api/users/",
@@ -136,16 +147,83 @@ def test_cross_business_access_returns_404(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+def test_editor_only_sees_own_products(api_client, auth_tokens):
+    editor_a = UserFactory(role=get_role(Roles.EDITOR))
+    editor_b = UserFactory(role=get_role(Roles.EDITOR), business=editor_a.business)
+    own_product = ProductFactory(business=editor_a.business, created_by=editor_a)
+    other_product = ProductFactory(business=editor_a.business, created_by=editor_b)
+
+    tokens = auth_tokens(editor_a)
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
+
+    list_response = api_client.get("/api/products/")
+    assert list_response.status_code == 200
+    ids = [item["id"] for item in list_response.json()["results"]]
+    assert own_product.id in ids
+    assert other_product.id not in ids
+
+    detail_response = api_client.get(f"/api/products/{other_product.id}/")
+    assert detail_response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_reject_requires_reason_and_sets_rejected_state(api_client, auth_tokens):
+    editor = UserFactory(role=get_role(Roles.EDITOR))
+    approver = UserFactory(role=get_role(Roles.APPROVER), business=editor.business)
+    product = ProductFactory(business=editor.business, created_by=editor, status=ProductStatus.PENDING_APPROVAL)
+
+    tokens = auth_tokens(approver)
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
+
+    no_reason = api_client.post(f"/api/products/{product.id}/reject/", {}, format="json")
+    assert no_reason.status_code == 400
+
+    with_reason = api_client.post(
+        f"/api/products/{product.id}/reject/",
+        {"reason": "Missing required compliance details."},
+        format="json",
+    )
+    assert with_reason.status_code == 200
+    assert with_reason.json()["status"] == ProductStatus.REJECTED
+    assert with_reason.json()["rejection_reason"] == "Missing required compliance details."
+
+
+@pytest.mark.django_db
+def test_editor_can_resubmit_rejected_product(api_client, auth_tokens):
+    editor = UserFactory(role=get_role(Roles.EDITOR))
+    product = ProductFactory(
+        business=editor.business,
+        created_by=editor,
+        status=ProductStatus.REJECTED,
+        rejection_reason="Old reason",
+    )
+
+    tokens = auth_tokens(editor)
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
+
+    response = api_client.post(f"/api/products/{product.id}/submit/", {}, format="json")
+    assert response.status_code == 200
+    assert response.json()["status"] == ProductStatus.PENDING_APPROVAL
+    assert response.json()["rejection_reason"] == ""
+
+
+@pytest.mark.django_db
 def test_public_endpoint_shows_only_approved(api_client):
     business = BusinessFactory()
     editor = UserFactory(role=get_role(Roles.EDITOR), business=business)
-    ProductFactory(business=business, created_by=editor, status=ProductStatus.APPROVED)
+    ProductFactory(
+        business=business,
+        created_by=editor,
+        status=ProductStatus.APPROVED,
+        image_url="https://cdn.example.com/product.png",
+    )
     ProductFactory(business=business, created_by=editor, status=ProductStatus.DRAFT)
 
     response = api_client.get("/api/public/products/")
     assert response.status_code == 200
     results = response.json()["results"]
     assert len(results) == 1
+    assert results[0]["image_url"] == "https://cdn.example.com/product.png"
 
 
 @pytest.mark.django_db
@@ -166,3 +244,4 @@ def test_statistics_endpoints(api_client, auth_tokens):
     owner_stats = api_client.get("/api/business/statistics/")
     assert owner_stats.status_code == 200
     assert owner_stats.json()["pending_approvals"] == 1
+    assert "rejected_products" in owner_stats.json()

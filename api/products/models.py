@@ -6,18 +6,22 @@ class ProductStatus(models.TextChoices):
     DRAFT = "draft", "Draft"
     PENDING_APPROVAL = "pending_approval", "Pending Approval"
     APPROVED = "approved", "Approved"
+    REJECTED = "rejected", "Rejected"
 
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
+    image = models.FileField(upload_to="products/images/", blank=True, null=True)
+    image_url = models.URLField(blank=True)
     status = models.CharField(
         max_length=32,
         choices=ProductStatus.choices,
         default=ProductStatus.DRAFT,
         db_index=True,
     )
+    rejection_reason = models.TextField(blank=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

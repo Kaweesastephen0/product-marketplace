@@ -44,4 +44,5 @@ class StatisticsService:
             "total_products": products.count(),
             "pending_approvals": products.filter(status=ProductStatus.PENDING_APPROVAL).count(),
             "approved_products": products.filter(status=ProductStatus.APPROVED).count(),
+            "rejected_products": products.filter(status=ProductStatus.REJECTED).count(),
         }

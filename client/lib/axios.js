@@ -33,7 +33,11 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   config.headers = config.headers || {};
-  config.headers["Content-Type"] = "application/json";
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  } else {
+    config.headers["Content-Type"] = "application/json";
+  }
   return config;
 });
 

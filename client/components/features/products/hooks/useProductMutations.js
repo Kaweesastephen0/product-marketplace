@@ -42,7 +42,7 @@ export function useProductMutations({ page, status }) {
   });
 
   const reject = useMutation({
-    mutationFn: productsService.reject,
+    mutationFn: ({ id, reason }) => productsService.reject(id, reason),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }),
   });
 

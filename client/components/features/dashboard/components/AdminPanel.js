@@ -4,6 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
 import EmailOutlined from "@mui/icons-material/EmailOutlined";
 import LockOutlined from "@mui/icons-material/LockOutlined";
+import SearchOutlined from "@mui/icons-material/SearchOutlined";
+import PersonOutlined from "@mui/icons-material/PersonOutlined";
+import BadgeOutlined from "@mui/icons-material/BadgeOutlined";
 import { useEffect, useState } from "react";
 
 import MetricCards from "@/components/features/dashboard/components/MetricCards";
@@ -16,7 +19,13 @@ import TablePagination from "@/components/ui/TablePagination";
 import { useNotify } from "@/hooks/useNotify";
 import { adminService } from "@/lib/services/admin.service";
 
-const initialForm = { business_name: "", owner_email: "", owner_password: "" };
+const initialForm = {
+  business_name: "",
+  owner_email: "",
+  owner_password: "",
+  owner_first_name: "",
+  owner_last_name: "",
+};
 const PAGE_SIZE = 10;
 
 export default function AdminPanel({ section = "overview" }) {
@@ -26,6 +35,7 @@ export default function AdminPanel({ section = "overview" }) {
   const [editBusiness, setEditBusiness] = useState({ id: null, name: "" });
   const [deleteBusinessTarget, setDeleteBusinessTarget] = useState(null);
   const [businessPage, setBusinessPage] = useState(1);
+  const [businessSearch, setBusinessSearch] = useState("");
   const notify = useNotify();
   const queryClient = useQueryClient();
 
@@ -122,6 +132,13 @@ export default function AdminPanel({ section = "overview" }) {
   const businesses = usesServerPagination
     ? rawBusinesses
     : rawBusinesses.slice((businessPage - 1) * PAGE_SIZE, businessPage * PAGE_SIZE);
+  const filteredBusinesses = businesses.filter((business) =>
+    [business.name, business.owner_email, business.total_users, business.total_products]
+      .filter((value) => value !== null && value !== undefined)
+      .join(" ")
+      .toLowerCase()
+      .includes(businessSearch.toLowerCase()),
+  );
 
   useEffect(() => {
     setBusinessPage((current) => Math.min(current, businessPages));
@@ -145,13 +162,23 @@ export default function AdminPanel({ section = "overview" }) {
 
       {section === "businesses" ? (
         <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
-          <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+          <div className="mb-4 grid grid-cols-1 items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
             <div>
               <h2 className="m-0 text-xl font-semibold text-[#211f1a]">Business Management</h2>
               <p className="m-0 mt-1 text-sm text-[#6f6c63]">
                 Create owners and manage existing businesses.
               </p>
             </div>
+            <div className="w-full md:w-72 md:justify-self-center">
+              <IconInput
+                icon={SearchOutlined}
+                value={businessSearch}
+                onChange={(event) => setBusinessSearch(event.target.value)}
+                placeholder="Search businesses..."
+                className="py-1.5 text-xs"
+              />
+            </div>
+            <div className="md:justify-self-end">
             <button
               type="button"
               onClick={() => setOpen(true)}
@@ -159,12 +186,14 @@ export default function AdminPanel({ section = "overview" }) {
             >
               Create Business Owner
             </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-[#e3decf]">
             <table className="min-w-full border-collapse text-sm">
               <thead className="bg-[#f5f2e8] text-left text-[#4c493f]">
                 <tr>
+                  <th className="px-3 py-2 font-medium">No.</th>
                   <th className="px-3 py-2 font-medium">Business</th>
                   <th className="px-3 py-2 font-medium">Owner</th>
                   <th className="px-3 py-2 font-medium">Users</th>
@@ -175,13 +204,14 @@ export default function AdminPanel({ section = "overview" }) {
               <tbody>
                 {businessesQuery.isLoading ? (
                   <tr className="border-t border-[#efe9d7]">
-                    <td colSpan={5} className="px-3 py-4 text-center text-[#6f6c63]">
+                    <td colSpan={6} className="px-3 py-4 text-center text-[#6f6c63]">
                       Loading businesses...
                     </td>
                   </tr>
                 ) : null}
-                {businesses.map((business) => (
+                {filteredBusinesses.map((business, index) => (
                   <tr key={business.id} className="border-t border-[#efe9d7]">
+                    <td className="px-3 py-2">{(businessPage - 1) * PAGE_SIZE + index + 1}</td>
                     <td className="px-3 py-2">{business.name}</td>
                     <td className="px-3 py-2">{business.owner_email || "-"}</td>
                     <td className="px-3 py-2">{business.total_users ?? 0}</td>
@@ -208,9 +238,9 @@ export default function AdminPanel({ section = "overview" }) {
                     </td>
                   </tr>
                 ))}
-                {!businessesQuery.isLoading && !businesses.length ? (
+                {!businessesQuery.isLoading && !filteredBusinesses.length ? (
                   <tr className="border-t border-[#efe9d7]">
-                    <td colSpan={5} className="px-3 py-4 text-center text-[#6f6c63]">
+                    <td colSpan={6} className="px-3 py-4 text-center text-[#6f6c63]">
                       No businesses found.
                     </td>
                   </tr>
@@ -266,6 +296,24 @@ export default function AdminPanel({ section = "overview" }) {
               onChange={(e) => setForm((prev) => ({ ...prev, owner_password: e.target.value }))}
             />
           </label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">Owner First Name</span>
+              <IconInput
+                icon={PersonOutlined}
+                value={form.owner_first_name}
+                onChange={(e) => setForm((prev) => ({ ...prev, owner_first_name: e.target.value }))}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">Owner Last Name</span>
+              <IconInput
+                icon={BadgeOutlined}
+                value={form.owner_last_name}
+                onChange={(e) => setForm((prev) => ({ ...prev, owner_last_name: e.target.value }))}
+              />
+            </label>
+          </div>
           <div className="flex justify-end gap-2">
             <button
               type="button"

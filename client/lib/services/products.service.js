@@ -17,12 +17,14 @@ export const productsService = {
     return data;
   },
   async create(payload) {
-    const { data } = await api.post("/api/products", payload);
+    const requestBody = buildProductPayload(payload);
+    const { data } = await api.post("/api/products", requestBody);
     return data;
   },
   async update(id, payload) {
     const productId = assertValidProductId(id);
-    const { data } = await api.patch(`/api/products/${productId}`, payload);
+    const requestBody = buildProductPayload(payload);
+    const { data } = await api.patch(`/api/products/${productId}`, requestBody);
     return data;
   },
   async approve(id) {
@@ -30,9 +32,9 @@ export const productsService = {
     const { data } = await api.post(`/api/products/${productId}/approve`, {});
     return data;
   },
-  async reject(id) {
+  async reject(id, reason) {
     const productId = assertValidProductId(id);
-    const { data } = await api.post(`/api/products/${productId}/reject`, {});
+    const { data } = await api.post(`/api/products/${productId}/reject`, { reason });
     return data;
   },
   async submit(id) {
@@ -46,3 +48,15 @@ export const productsService = {
     return data;
   },
 };
+
+function buildProductPayload(payload = {}) {
+  const hasFile = typeof File !== "undefined" && payload.image instanceof File;
+  if (!hasFile) return payload;
+
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined || value === null || value === "") continue;
+    formData.append(key, value);
+  }
+  return formData;
+}

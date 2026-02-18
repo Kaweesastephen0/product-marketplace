@@ -7,7 +7,7 @@ import LockOutlined from "@mui/icons-material/LockOutlined";
 import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import IconInput from "@/components/ui/IconInput";
 import Modal from "@/components/ui/Modal";
@@ -21,8 +21,16 @@ export default function AuthModalButtons() {
 
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({ email: "", password: "", business_id: "" });
+  const [profileForm, setProfileForm] = useState({
+    first_name: "",
+    last_name: "",
+    current_password: "",
+    new_password: "",
+    confirm_new_password: "",
+  });
 
   const meQuery = useQuery({
     queryKey: ["header-me"],
@@ -33,8 +41,21 @@ export default function AuthModalButtons() {
   const login = useMutation({ mutationFn: authService.login });
   const register = useMutation({ mutationFn: authService.registerViewer });
   const logout = useMutation({ mutationFn: authService.logout });
+  const updateProfile = useMutation({ mutationFn: authService.updateProfile });
 
   const isAuthenticated = Boolean(meQuery.data?.email);
+
+  useEffect(() => {
+    if (profileOpen) {
+      setProfileForm({
+        first_name: meQuery.data?.first_name || "",
+        last_name: meQuery.data?.last_name || "",
+        current_password: "",
+        new_password: "",
+        confirm_new_password: "",
+      });
+    }
+  }, [profileOpen, meQuery.data]);
 
   const onLogin = async (event) => {
     event.preventDefault();
@@ -68,10 +89,32 @@ export default function AuthModalButtons() {
       queryClient.removeQueries({ queryKey: ["me"] });
       setLoginOpen(false);
       setRegisterOpen(false);
+      setProfileOpen(false);
       notify.info("Logged out");
       router.refresh();
     } catch (error) {
       notify.error(error.message || "Logout failed");
+    }
+  };
+
+  const onSaveProfile = async () => {
+    try {
+      await updateProfile.mutateAsync({
+        first_name: profileForm.first_name,
+        last_name: profileForm.last_name,
+        ...(profileForm.new_password
+          ? {
+              current_password: profileForm.current_password,
+              new_password: profileForm.new_password,
+              confirm_new_password: profileForm.confirm_new_password,
+            }
+          : {}),
+      });
+      await meQuery.refetch();
+      notify.success("Profile updated");
+      setProfileOpen(false);
+    } catch (error) {
+      notify.error(error.message || "Failed to update profile");
     }
   };
 
@@ -84,7 +127,7 @@ export default function AuthModalButtons() {
           <>
             <button
               type="button"
-              onClick={() => router.push("/dashboard")}
+              onClick={() => setProfileOpen(true)}
               className="inline-flex items-center gap-1 rounded-lg border border-[#d6d0be] px-3 py-1.5 text-sm text-[#2a2823] hover:bg-[#f1eee2]"
             >
               <PersonOutlineOutlined fontSize="small" />
@@ -210,6 +253,84 @@ export default function AuthModalButtons() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal open={profileOpen} onClose={() => setProfileOpen(false)} title="My Profile" maxWidthClass="max-w-2xl">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">First Name</span>
+              <IconInput
+                icon={PersonOutlineOutlined}
+                value={profileForm.first_name}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, first_name: e.target.value }))}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">Last Name</span>
+              <IconInput
+                icon={PersonOutlineOutlined}
+                value={profileForm.last_name}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, last_name: e.target.value }))}
+              />
+            </label>
+            <div className="sm:col-span-2">
+              <p className="m-0 text-xs uppercase tracking-wide text-[#6f6c63]">Email</p>
+              <p className="m-0 mt-1 text-sm text-[#211f1a]">{meQuery.data?.email || "-"}</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-[#e3decf] p-3">
+            <h3 className="m-0 text-sm font-semibold text-[#211f1a]">Change Password</h3>
+            <div className="mt-2 space-y-3">
+              <label className="block">
+                <span className="mb-1 block text-sm text-[#211f1a]">Current Password</span>
+                <IconInput
+                  icon={LockOutlined}
+                  type="password"
+                  value={profileForm.current_password}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, current_password: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-sm text-[#211f1a]">New Password</span>
+                <IconInput
+                  icon={LockOutlined}
+                  type="password"
+                  value={profileForm.new_password}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, new_password: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-sm text-[#211f1a]">Confirm New Password</span>
+                <IconInput
+                  icon={LockOutlined}
+                  type="password"
+                  value={profileForm.confirm_new_password}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, confirm_new_password: e.target.value }))}
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setProfileOpen(false)}
+              className="rounded-lg border border-[#d6d0be] px-3 py-1.5 text-sm hover:bg-[#f1eee2]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onSaveProfile}
+              disabled={updateProfile.isPending}
+              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47] disabled:opacity-60"
+            >
+              {updateProfile.isPending ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </div>
       </Modal>
     </>
   );

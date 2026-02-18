@@ -1,10 +1,17 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import SearchOutlined from "@mui/icons-material/SearchOutlined";
+import EmailOutlined from "@mui/icons-material/EmailOutlined";
+import LockOutlined from "@mui/icons-material/LockOutlined";
+import PersonOutlined from "@mui/icons-material/PersonOutlined";
+import BadgeOutlined from "@mui/icons-material/BadgeOutlined";
+import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
 import { useEffect, useMemo, useState } from "react";
 
 import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import IconInput from "@/components/ui/IconInput";
 import TablePagination from "@/components/ui/TablePagination";
 import { useNotify } from "@/hooks/useNotify";
 import { adminService } from "@/lib/services/admin.service";
@@ -13,6 +20,8 @@ import { businessService } from "@/lib/services/business.service";
 const initialForm = {
   email: "",
   password: "",
+  first_name: "",
+  last_name: "",
   role: "editor",
   business_id: "",
   business_name: "",
@@ -37,6 +46,7 @@ export default function UserManagementPanel({ mode = "owner" }) {
   const [editBusinessSearch, setEditBusinessSearch] = useState("");
   const [deleteUserTarget, setDeleteUserTarget] = useState(null);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const notify = useNotify();
   const queryClient = useQueryClient();
 
@@ -103,6 +113,8 @@ export default function UserManagementPanel({ mode = "owner" }) {
           business_name: form.business_name,
           owner_email: form.email,
           owner_password: form.password,
+          owner_first_name: form.first_name,
+          owner_last_name: form.last_name,
         });
       } else {
         if (mode === "admin" && (form.role === "editor" || form.role === "approver") && !form.business_id) {
@@ -115,6 +127,8 @@ export default function UserManagementPanel({ mode = "owner" }) {
             ? {
                 email: form.email,
                 password: form.password,
+                first_name: form.first_name,
+                last_name: form.last_name,
                 role: roleToCreate,
                 business_id:
                   roleToCreate === "editor" || roleToCreate === "approver"
@@ -126,6 +140,8 @@ export default function UserManagementPanel({ mode = "owner" }) {
             : {
                 email: form.email,
                 password: form.password,
+                first_name: form.first_name,
+                last_name: form.last_name,
                 role: roleToCreate,
               };
 
@@ -144,8 +160,15 @@ export default function UserManagementPanel({ mode = "owner" }) {
   const users = Array.isArray(usersQuery.data)
     ? usersQuery.data
     : usersQuery.data?.results || [];
-  const pages = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
-  const pagedUsers = users.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const filteredUsers = users.filter((user) =>
+    [user.email, user.role, user.is_active ? "active" : "inactive", user.business_name, String(user.business_id || "")]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
+  const pages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  const pagedUsers = filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   useEffect(() => {
     setPage((current) => Math.min(current, pages));
@@ -234,21 +257,36 @@ export default function UserManagementPanel({ mode = "owner" }) {
 
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="m-0 text-xl font-semibold text-[#211f1a]">User Management</h2>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47]"
-        >
-          Add User
-        </button>
+      <div className="mb-3 grid grid-cols-1 items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
+        <h2 className="m-0 text-xl font-semibold text-[#211f1a] md:justify-self-start">User Management</h2>
+        <div className="w-full md:w-72 md:justify-self-center">
+          <IconInput
+            icon={SearchOutlined}
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Search users..."
+            className="py-1.5 text-xs"
+          />
+        </div>
+        <div className="md:justify-self-end">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47]"
+          >
+            Add User
+          </button>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-[#e3decf]">
         <table className="min-w-full border-collapse text-sm">
           <thead className="bg-[#f5f2e8] text-left text-[#4c493f]">
             <tr>
+              <th className="px-3 py-2 font-medium">No.</th>
               <th className="px-3 py-2 font-medium">Email</th>
               <th className="px-3 py-2 font-medium">Role</th>
               {mode === "admin" ? <th className="px-3 py-2 font-medium">Business</th> : null}
@@ -259,13 +297,14 @@ export default function UserManagementPanel({ mode = "owner" }) {
           <tbody>
             {usersQuery.isLoading ? (
               <tr className="border-t border-[#efe9d7]">
-                <td colSpan={mode === "admin" ? 5 : 3} className="px-3 py-4 text-center text-[#6f6c63]">
+                <td colSpan={mode === "admin" ? 6 : 4} className="px-3 py-4 text-center text-[#6f6c63]">
                   Loading users...
                 </td>
               </tr>
             ) : null}
-            {pagedUsers.map((user) => (
+            {pagedUsers.map((user, index) => (
               <tr key={user.id} className="border-t border-[#efe9d7]">
+                <td className="px-3 py-2">{(page - 1) * PAGE_SIZE + index + 1}</td>
                 <td className="px-3 py-2">{user.email}</td>
                 <td className="px-3 py-2 capitalize">{user.role}</td>
                 {mode === "admin" ? (
@@ -319,9 +358,9 @@ export default function UserManagementPanel({ mode = "owner" }) {
                 ) : null}
               </tr>
             ))}
-            {!usersQuery.isLoading && !users.length ? (
+            {!usersQuery.isLoading && !filteredUsers.length ? (
               <tr className="border-t border-[#efe9d7]">
-                <td colSpan={mode === "admin" ? 5 : 3} className="px-3 py-4 text-center text-[#6f6c63]">
+                <td colSpan={mode === "admin" ? 6 : 4} className="px-3 py-4 text-center text-[#6f6c63]">
                   No users found.
                 </td>
               </tr>
@@ -340,22 +379,45 @@ export default function UserManagementPanel({ mode = "owner" }) {
         <div className="space-y-3">
           <label className="block">
             <span className="mb-1 block text-sm text-[#211f1a]">Email</span>
-            <input
+            <IconInput
+              icon={EmailOutlined}
               value={form.email}
               onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
-              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
+              className="py-2"
             />
           </label>
 
           <label className="block">
             <span className="mb-1 block text-sm text-[#211f1a]">Password</span>
-            <input
+            <IconInput
+              icon={LockOutlined}
               type="password"
               value={form.password}
               onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
-              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
+              className="py-2"
             />
           </label>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">First Name</span>
+              <IconInput
+                icon={PersonOutlined}
+                value={form.first_name}
+                onChange={(e) => setForm((prev) => ({ ...prev, first_name: e.target.value }))}
+                className="py-2"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">Last Name</span>
+              <IconInput
+                icon={BadgeOutlined}
+                value={form.last_name}
+                onChange={(e) => setForm((prev) => ({ ...prev, last_name: e.target.value }))}
+                className="py-2"
+              />
+            </label>
+          </div>
 
           <fieldset className="space-y-2">
             <legend className="mb-1 text-sm text-[#211f1a]">Role</legend>
@@ -391,10 +453,11 @@ export default function UserManagementPanel({ mode = "owner" }) {
           {mode === "admin" && form.role === "business_owner" ? (
             <label className="block">
               <span className="mb-1 block text-sm text-[#211f1a]">Business Name</span>
-              <input
+              <IconInput
+                icon={BusinessOutlined}
                 value={form.business_name}
                 onChange={(e) => setForm((prev) => ({ ...prev, business_name: e.target.value }))}
-                className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
+                className="py-2"
               />
               <span className="mt-1 block text-xs text-[#6f6c63]">
                 A new business profile will be created first, then owner account

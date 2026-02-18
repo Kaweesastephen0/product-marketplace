@@ -20,6 +20,7 @@ export default function OwnerPanel({ section = "overview" }) {
             { label: "Total Products", value: stats.total_products ?? "-" },
             { label: "Pending Approvals", value: stats.pending_approvals ?? "-" },
             { label: "Approved Products", value: stats.approved_products ?? "-" },
+            { label: "Rejected Products", value: stats.rejected_products ?? "-" },
           ]}
         />
       )}

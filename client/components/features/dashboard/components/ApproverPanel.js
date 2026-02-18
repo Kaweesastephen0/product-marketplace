@@ -17,9 +17,15 @@ export default function ApproverPanel({ section = "pending" }) {
     queryFn: () => productsService.list({ page: 1, status: "approved" }),
     staleTime: 30_000,
   });
+  const rejectedQuery = useQuery({
+    queryKey: ["approver-stats", "rejected"],
+    queryFn: () => productsService.list({ page: 1, status: "rejected" }),
+    staleTime: 30_000,
+  });
 
   const pendingCount = pendingQuery.data?.count ?? "-";
   const approvedCount = approvedQuery.data?.count ?? "-";
+  const rejectedCount = rejectedQuery.data?.count ?? "-";
 
   return (
     <div className="space-y-4">
@@ -27,7 +33,7 @@ export default function ApproverPanel({ section = "pending" }) {
         items={[
           { label: "Pending", value: pendingCount },
           { label: "Approved", value: approvedCount },
-          { label: "Confirmed", value: approvedCount },
+          { label: "Rejected", value: rejectedCount },
         ]}
       />
 

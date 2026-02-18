@@ -26,7 +26,15 @@ class AuditService:
 class UserService:
     @staticmethod
     @transaction.atomic
-    def create_business_owner(*, actor, business_name, owner_email, owner_password):
+    def create_business_owner(
+        *,
+        actor,
+        business_name,
+        owner_email,
+        owner_password,
+        owner_first_name="",
+        owner_last_name="",
+    ):
         if not actor.has_role(Roles.ADMIN):
             raise PermissionDenied("Only admins can create business owners.")
 
@@ -36,6 +44,8 @@ class UserService:
             password=owner_password,
             role=Roles.BUSINESS_OWNER,
             business=business,
+            first_name=owner_first_name,
+            last_name=owner_last_name,
         )
         business.owner = owner
         business.save(update_fields=["owner"])
@@ -52,7 +62,7 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
-    def create_business_user(*, actor, email, password, role, business_id=None):
+    def create_business_user(*, actor, email, password, role, business_id=None, first_name="", last_name=""):
         if role == Roles.BUSINESS_OWNER and not actor.has_role(Roles.ADMIN):
             raise PermissionDenied("Only admins can create business owners.")
 
@@ -80,6 +90,8 @@ class UserService:
             password=password,
             role=role,
             business=business,
+            first_name=first_name,
+            last_name=last_name,
         )
 
         AuditService.log(
