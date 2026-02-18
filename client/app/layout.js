@@ -7,6 +7,7 @@ export const metadata = {
   description: "Professional role-based marketplace UI",
 };
 
+// Renders the layout component UI.
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

@@ -1,5 +1,6 @@
 "use client";
 
+// Renders previous and next pagination controls with page indicator.
 export default function TablePagination({ page, totalPages, onPrev, onNext, className = "" }) {
   return (
     <div className={`mt-3 flex items-center justify-center gap-2 text-sm ${className}`}>

@@ -9,6 +9,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 const COLLAPSED_WIDTH = 76;
 const EXPANDED_WIDTH = 250;
 
+// Renders sidebar navigation links and logout controls.
 function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
   return (
     <div className="flex h-full flex-col pt-4">
@@ -111,6 +112,7 @@ function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
   );
 }
 
+// Renders responsive sidebar navigation with hover-expand behavior.
 export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, onMobileClose, onLogout }) {
   const [expanded, setExpanded] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);

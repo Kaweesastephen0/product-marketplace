@@ -11,9 +11,11 @@ const toneStyles = {
   info: "border-sky-200 bg-sky-50 text-sky-900",
 };
 
+// Renders the useNotify component UI.
 export function NotifyProvider({ children }) {
   const [state, setState] = useState({ open: false, severity: "info", message: "", id: 0 });
 
+  // Performs push operations.
   const push = (severity, message) => {
     setState({ open: true, severity, message: message || "", id: Date.now() });
   };
@@ -28,18 +30,23 @@ export function NotifyProvider({ children }) {
 
   const value = useMemo(
     () => ({
+      // Performs show operations.
       show(severity, message) {
         push(severity, message);
       },
+      // Performs success operations.
       success(message) {
         push("success", message);
       },
+      // Performs error operations.
       error(message) {
         push("error", message);
       },
+      // Performs warning operations.
       warning(message) {
         push("warning", message);
       },
+      // Performs info operations.
       info(message) {
         push("info", message);
       },
@@ -77,6 +84,7 @@ export function NotifyProvider({ children }) {
   );
 }
 
+// Returns typed toast helpers for success, error, warning, and info messages.
 export function useNotify() {
   const context = useContext(NotifyContext);
   if (!context) throw new Error("useNotify must be used within NotifyProvider");

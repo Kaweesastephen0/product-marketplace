@@ -2,11 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import MetricCards from "@/components/features/dashboard/components/MetricCards";
-import ProductManagerPanel from "@/components/features/dashboard/components/ProductManagerPanel";
-import UserManagementPanel from "@/components/features/dashboard/components/UserManagementPanel";
+import MetricCards from "@/components/features/dashboard/MetricCards";
+import ProductManagerPanel from "@/components/features/dashboard/ProductManagerPanel";
+import UserManagementPanel from "@/components/features/dashboard/UserManagementPanel";
 import { businessService } from "@/lib/services/business.service";
 
+// Renders owner metrics plus user and product management sections.
 export default function OwnerPanel({ section = "overview" }) {
   const statsQuery = useQuery({ queryKey: ["business-stats"], queryFn: businessService.statistics });
   const stats = statsQuery.data || {};

@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 
-import { useProductsQuery } from "@/components/features/products/hooks/useProductsQuery";
-import { useProductMutations } from "@/components/features/products/hooks/useProductMutations";
+import { useProductsQuery } from "@/components/features/products/useProductsQuery";
+import { useProductMutations } from "@/components/features/products/useProductMutations";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import IconInput from "@/components/ui/IconInput";
 import Modal from "@/components/ui/Modal";
 import TablePagination from "@/components/ui/TablePagination";
 import { useNotify } from "@/hooks/useNotify";
 
+// Maps dashboard section keys to product status filter values.
 function sectionToStatus(section) {
   if (section === "pending") return "pending_approval";
   if (section === "confirmed") return "approved";
@@ -17,6 +18,7 @@ function sectionToStatus(section) {
   return "";
 }
 
+// Renders approver product list with view, approve, and reject actions.
 export default function ApprovalPanel({ section = "pending" }) {
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(1);
@@ -46,6 +48,7 @@ export default function ApprovalPanel({ section = "pending" }) {
     setPage(1);
   }, [section]);
 
+  // Approves the selected pending product.
   const onApprove = async (id) => {
     if (!id) {
       notify.error("Invalid product id");
@@ -59,6 +62,7 @@ export default function ApprovalPanel({ section = "pending" }) {
     }
   };
 
+  // Opens the reject modal for the selected product.
   const onOpenReject = (row) => {
     if (!row?.id) {
       notify.error("Invalid product id");
@@ -69,6 +73,7 @@ export default function ApprovalPanel({ section = "pending" }) {
     setRejectModalOpen(true);
   };
 
+  // Rejects the selected product using the provided rejection reason.
   const onReject = async () => {
     if (!rejectTarget?.id) return;
     if (!rejectReason.trim()) {
@@ -86,6 +91,7 @@ export default function ApprovalPanel({ section = "pending" }) {
     }
   };
 
+  // Opens the product details modal for the selected product.
   const onView = (row) => {
     setViewTarget(row);
     setViewModalOpen(true);

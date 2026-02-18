@@ -2,6 +2,7 @@ import { NextRequest,  NextResponse } from "next/server";
 
 import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/auth-cookies";
 
+// Performs proxy operations.
 export default function proxy(request) {
   const { pathname } = request.nextUrl;
 
@@ -10,7 +11,7 @@ export default function proxy(request) {
     const hasRefresh = request.cookies.has(REFRESH_COOKIE);
 
     if (!hasAccess && !hasRefresh) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 

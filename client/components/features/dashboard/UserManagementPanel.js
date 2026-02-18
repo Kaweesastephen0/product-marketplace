@@ -29,6 +29,7 @@ const initialForm = {
 const OWNER_ALLOWED_ROLES = new Set(["editor", "approver"]);
 const PAGE_SIZE = 10;
 
+// Renders user listing plus create, edit, activate, suspend, and delete flows.
 export default function UserManagementPanel({ mode = "owner" }) {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -95,6 +96,7 @@ export default function UserManagementPanel({ mode = "owner" }) {
     [businesses],
   );
 
+  // Runs the create event handler.
   const onCreate = async () => {
     try {
       if (mode !== "admin" && !OWNER_ALLOWED_ROLES.has(form.role)) {
@@ -174,6 +176,7 @@ export default function UserManagementPanel({ mode = "owner" }) {
     setPage((current) => Math.min(current, pages));
   }, [pages]);
 
+  // Runs the suspend user event handler.
   const onSuspendUser = async (user) => {
     if (!user?.id) return;
     try {
@@ -184,6 +187,7 @@ export default function UserManagementPanel({ mode = "owner" }) {
     }
   };
 
+  // Runs the activate user event handler.
   const onActivateUser = async (user) => {
     if (!user?.id) return;
     try {
@@ -194,11 +198,13 @@ export default function UserManagementPanel({ mode = "owner" }) {
     }
   };
 
+  // Runs the delete user event handler.
   const onDeleteUser = async (user) => {
     if (!user?.id) return;
     setDeleteUserTarget(user);
   };
 
+  // Runs the confirm delete user event handler.
   const onConfirmDeleteUser = async () => {
     if (!deleteUserTarget?.id) return;
     try {
@@ -210,6 +216,7 @@ export default function UserManagementPanel({ mode = "owner" }) {
     }
   };
 
+  // Opens edit user UI state.
   const openEditUser = (user) => {
     setEditForm({
       id: user.id,
@@ -224,6 +231,7 @@ export default function UserManagementPanel({ mode = "owner" }) {
     setEditOpen(true);
   };
 
+  // Runs the save user edit event handler.
   const onSaveUserEdit = async () => {
     if (!editForm.id) return;
     if (["editor", "approver", "business_owner"].includes(editForm.role) && !editForm.business_id) {

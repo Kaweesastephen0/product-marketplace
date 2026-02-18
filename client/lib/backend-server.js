@@ -5,6 +5,7 @@ import { ACCESS_COOKIE, REFRESH_COOKIE, cookieOptions } from "@/lib/auth-cookies
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+// Calls the backend API with auth headers and JSON or FormData body.
 async function callBackend(path, { method = "GET", token, body } = {}) {
   const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
   const headers = {};
@@ -24,6 +25,7 @@ async function callBackend(path, { method = "GET", token, body } = {}) {
   });
 }
 
+// Refreshes the access token using the refresh cookie and updates auth cookies.
 async function refreshToken(cookieStore) {
   const refresh = cookieStore.get(REFRESH_COOKIE)?.value;
   if (!refresh) return null;
@@ -48,6 +50,7 @@ async function refreshToken(cookieStore) {
   return access;
 }
 
+// Proxies an authenticated request to backend with token refresh fallback.
 export async function proxyAuthenticated(path, { method = "GET", body } = {}) {
   const cookieStore = await cookies();
   let access = cookieStore.get(ACCESS_COOKIE)?.value;
@@ -80,6 +83,7 @@ export async function proxyAuthenticated(path, { method = "GET", body } = {}) {
   return NextResponse.json(data, { status: response.status });
 }
 
+// Proxies a public request to backend without authentication.
 export async function proxyPublic(path, { method = "GET", body } = {}) {
   let response;
   try {
@@ -97,6 +101,7 @@ export async function proxyPublic(path, { method = "GET", body } = {}) {
   return NextResponse.json(data, { status: response.status });
 }
 
+// Sends login credentials to backend and returns the backend response.
 export async function backendLogin(email, password) {
   return callBackend("/api/auth/login/", {
     method: "POST",
@@ -104,6 +109,7 @@ export async function backendLogin(email, password) {
   });
 }
 
+// Sends logout request to backend with access and refresh tokens.
 export async function backendLogout(access, refresh) {
   return callBackend("/api/auth/logout/", {
     method: "POST",

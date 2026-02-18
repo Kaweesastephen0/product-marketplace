@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// Extracts a readable error message from nested backend error payloads.
 function extractBackendMessage(payload) {
   if (!payload) return null;
   if (typeof payload === "string") return payload;
@@ -51,7 +52,7 @@ api.interceptors.response.use(
     if (
       typeof window !== "undefined" &&
       status === 401 &&
-      !String(error?.config?.url || "").includes("/api/auth/login")
+      !String(error?.config?.url || "").includes("/api/auth/")
     ) {
       window.dispatchEvent(new CustomEvent("auth:unauthorized"));
     }

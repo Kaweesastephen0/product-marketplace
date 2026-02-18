@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNotify } from "@/hooks/useNotify";
 import { authService } from "@/lib/services/auth.service";
 
+// Renders the page component UI.
 export default function ProfilePage() {
   const router = useRouter();
   const notify = useNotify();
@@ -16,10 +17,11 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace("/login");
+      router.replace("/");
     }
   }, [isLoading, isAuthenticated, router]);
 
+  // Logs the user out, clears cached auth state, and redirects to login.
   const handleLogout = async () => {
     try {
       await authService.logout();
@@ -28,7 +30,7 @@ export default function ProfilePage() {
       notify.warning("Session cleared");
     } finally {
       clearAuthCache();
-      router.replace("/login");
+      router.replace("/");
     }
   };
 

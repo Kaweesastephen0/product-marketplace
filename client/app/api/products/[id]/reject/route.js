@@ -1,11 +1,13 @@
 import { proxyAuthenticated } from "@/lib/backend-server";
 import { NextResponse } from "next/server";
 
+// Parses and validates a positive numeric id from route params.
 function parseId(value) {
   const id = Number(value);
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+// Handles POST requests for this route and forwards them to backend.
 export async function POST(request, { params }) {
   const { id: rawId } = await params;
   const id = parseId(rawId);

@@ -14,6 +14,7 @@ import Modal from "@/components/ui/Modal";
 import { useNotify } from "@/hooks/useNotify";
 import { authService } from "@/lib/services/auth.service";
 
+// Renders auth actions and profile modal controls in the public header.
 export default function AuthModalButtons() {
   const router = useRouter();
   const notify = useNotify();
@@ -57,6 +58,7 @@ export default function AuthModalButtons() {
     }
   }, [profileOpen, meQuery.data]);
 
+  // Runs the login event handler.
   const onLogin = async (event) => {
     event.preventDefault();
     try {
@@ -70,6 +72,7 @@ export default function AuthModalButtons() {
     }
   };
 
+  // Runs the register event handler.
   const onRegister = async (event) => {
     event.preventDefault();
     try {
@@ -82,6 +85,7 @@ export default function AuthModalButtons() {
     }
   };
 
+  // Runs the logout event handler.
   const onLogout = async () => {
     try {
       await logout.mutateAsync();
@@ -97,6 +101,7 @@ export default function AuthModalButtons() {
     }
   };
 
+  // Runs the save profile event handler.
   const onSaveProfile = async () => {
     try {
       await updateProfile.mutateAsync({

@@ -7,14 +7,16 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { NotifyProvider } from "@/hooks/useNotify";
 import { makeQueryClient } from "@/lib/query-client";
 
+// Wraps app children with shared client-side providers.
 export default function Providers({ children }) {
   const [queryClient] = useState(() => makeQueryClient());
 
   useEffect(() => {
+    // Handles r interaction.
     const handler = () => {
       queryClient.removeQueries({ queryKey: ["me"] });
       if (window.location.pathname.startsWith("/dashboard")) {
-        window.location.href = "/login";
+        window.location.href = "/";
       }
     };
     window.addEventListener("auth:unauthorized", handler);

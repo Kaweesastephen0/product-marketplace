@@ -9,6 +9,7 @@ import { hasPermission } from "@/types/auth";
 
 const AuthContext = createContext(null);
 
+// Renders the useAuth component UI.
 export function AuthProvider({ children }) {
   const queryClient = useQueryClient();
   const pathname = usePathname();
@@ -28,12 +29,15 @@ export function AuthProvider({ children }) {
       role,
       isLoading: meQuery.isLoading,
       isAuthenticated: shouldLoadProfile ? Boolean(meQuery.data) : false,
+      // Performs can operations.
       can(permission) {
         return hasPermission(role, permission);
       },
+      // Performs refetch me operations.
       async refetchMe() {
         return meQuery.refetch();
       },
+      // Performs clear auth cache operations.
       clearAuthCache() {
         queryClient.removeQueries({ queryKey: ["me"] });
       },
@@ -43,6 +47,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// Fetches auth session state and exposes auth cache helpers.
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

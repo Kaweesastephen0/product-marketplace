@@ -2,6 +2,7 @@
 
 import Modal from "@/components/ui/Modal";
 
+// Renders a confirmation modal with cancel and confirm actions.
 export default function ConfirmDialog({
   open,
   title = "Confirm Action",

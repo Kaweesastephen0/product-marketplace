@@ -1,5 +1,6 @@
 "use client";
 
+// Renders the error component UI.
 export default function GlobalError({ error, reset }) {
   return (
     <div className="grid min-h-screen place-items-center p-4">

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
 
+// Renders an input with optional leading icon and password visibility toggle.
 export default function IconInput({
   icon: Icon,
   type = "text",

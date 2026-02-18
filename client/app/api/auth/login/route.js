@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { ACCESS_COOKIE, REFRESH_COOKIE, cookieOptions } from "@/lib/auth-cookies";
 import { backendLogin } from "@/lib/backend-server";
 
+// Handles POST requests for this route and forwards them to backend.
 export async function POST(request) {
   try {
     const body = await request.json();
