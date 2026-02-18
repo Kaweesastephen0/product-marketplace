@@ -20,13 +20,13 @@ export default function Modal({ open, onClose, title, children, maxWidthClass = 
 
   return (
     <div
-      className="fixed inset-0 z-[1400] flex items-center justify-center bg-black/45 p-4"
+      className="fixed inset-0 z-[1400] flex items-start justify-center overflow-y-auto bg-black/45 p-4 sm:items-center"
       onClick={onClose}
       role="button"
       tabIndex={-1}
     >
       <div
-        className={`w-full ${maxWidthClass} rounded-2xl border border-[#ded9cb] bg-white p-5 shadow-xl`}
+        className={`my-4 flex max-h-[calc(100vh-2rem)] w-full flex-col rounded-2xl border border-[#ded9cb] bg-white p-5 shadow-xl ${maxWidthClass}`}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between gap-3">
@@ -40,7 +40,7 @@ export default function Modal({ open, onClose, title, children, maxWidthClass = 
             Close
           </button>
         </div>
-        {children}
+        <div className="overflow-y-auto pr-1">{children}</div>
       </div>
     </div>
   );

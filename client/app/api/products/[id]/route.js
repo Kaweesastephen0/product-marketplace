@@ -12,7 +12,10 @@ export async function PATCH(request, { params }) {
   if (!id) {
     return NextResponse.json({ detail: "Invalid product id." }, { status: 400 });
   }
-  const body = await request.json();
+  const contentType = request.headers.get("content-type") || "";
+  const body = contentType.includes("multipart/form-data")
+    ? await request.formData()
+    : await request.json();
   return proxyAuthenticated(`/api/products/${id}/`, { method: "PATCH", body });
 }
 

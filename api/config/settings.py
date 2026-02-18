@@ -105,6 +105,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
@@ -136,8 +138,8 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Product Marketplace API",
-    "DESCRIPTION": "Product marketplace backend",
+    "TITLE": "Marketplace API",
+    "DESCRIPTION": "marketplace backend",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }

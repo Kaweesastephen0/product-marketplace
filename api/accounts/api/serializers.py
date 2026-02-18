@@ -33,11 +33,15 @@ class BusinessOwnerCreateSerializer(serializers.Serializer):
     business_name = serializers.CharField(max_length=255)
     owner_email = serializers.EmailField()
     owner_password = serializers.CharField(write_only=True, min_length=8)
+    owner_first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    owner_last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
 
 
 class OwnerUserCreateSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
     role = serializers.ChoiceField(choices=Roles.CHOICES)
     business_id = serializers.IntegerField(required=False)
 

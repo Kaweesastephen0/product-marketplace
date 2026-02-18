@@ -6,9 +6,11 @@ import { ACCESS_COOKIE, REFRESH_COOKIE, cookieOptions } from "@/lib/auth-cookies
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 async function callBackend(path, { method = "GET", token, body } = {}) {
-  const headers = {
-    "Content-Type": "application/json",
-  };
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+  const headers = {};
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
@@ -17,7 +19,7 @@ async function callBackend(path, { method = "GET", token, body } = {}) {
   return fetch(`${API_BASE_URL}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
     cache: "no-store",
   });
 }

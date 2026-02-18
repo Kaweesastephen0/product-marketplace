@@ -27,6 +27,8 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         if not user.has_role(Roles.ADMIN):
             queryset = queryset.filter(business_id=user.business_id)
+            if user.role_code == Roles.EDITOR:
+                queryset = queryset.filter(created_by_id=user.id)
             if user.role_code == Roles.VIEWER:
                 queryset = queryset.filter(status=ProductStatus.APPROVED)
 
@@ -48,7 +50,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         product = ProductService.create_product(user=request.user, validated_data=serializer.validated_data)
-        return Response(ProductListSerializer(product).data, status=status.HTTP_201_CREATED)
+        return Response(ProductListSerializer(product, context={"request": request}).data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, *args, **kwargs):
         product = self._get_scoped_product(kwargs["pk"])
@@ -59,7 +61,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             product=product,
             validated_data=serializer.validated_data,
         )
-        return Response(ProductListSerializer(updated).data, status=status.HTTP_200_OK)
+        return Response(ProductListSerializer(updated, context={"request": request}).data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         product = self._get_scoped_product(kwargs["pk"])
@@ -70,7 +72,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             product=product,
             validated_data=serializer.validated_data,
         )
-        return Response(ProductListSerializer(updated).data, status=status.HTTP_200_OK)
+        return Response(ProductListSerializer(updated, context={"request": request}).data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
         product = self._get_scoped_product(kwargs["pk"])
@@ -81,19 +83,23 @@ class ProductViewSet(viewsets.ModelViewSet):
     def approve(self, request, pk=None):
         product = self._get_scoped_product(pk)
         product = ProductService.approve_product(user=request.user, product=product)
-        return Response(ProductListSerializer(product).data, status=status.HTTP_200_OK)
+        return Response(ProductListSerializer(product, context={"request": request}).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="reject")
     def reject(self, request, pk=None):
         product = self._get_scoped_product(pk)
-        product = ProductService.reject_product(user=request.user, product=product)
-        return Response(ProductListSerializer(product).data, status=status.HTTP_200_OK)
+        product = ProductService.reject_product(
+            user=request.user,
+            product=product,
+            reason=request.data.get("reason"),
+        )
+        return Response(ProductListSerializer(product, context={"request": request}).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="submit")
     def submit_for_approval(self, request, pk=None):
         product = self._get_scoped_product(pk)
         product = ProductService.submit_for_approval(user=request.user, product=product)
-        return Response(ProductListSerializer(product).data, status=status.HTTP_200_OK)
+        return Response(ProductListSerializer(product, context={"request": request}).data, status=status.HTTP_200_OK)
 
 
 class PublicProductViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -113,6 +119,6 @@ class PublicProductViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return (
             Product.objects.filter(id__in=cached_ids, status=ProductStatus.APPROVED)
             .select_related("business")
-            .only("id", "name", "description", "price", "updated_at", "business__name")
+            .only("id", "name", "description", "price", "updated_at", "image", "image_url", "business__name")
             .order_by("-updated_at")
         )

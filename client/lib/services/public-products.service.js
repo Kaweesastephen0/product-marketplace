@@ -3,7 +3,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8
 export async function getPublicProducts(page = 1) {
   const url = `${API_BASE_URL}/api/public/products/?page=${page}`;
   const response = await fetch(url, {
-    next: { revalidate: 30 },
+    cache: "no-store",
   });
 
   if (!response.ok) {

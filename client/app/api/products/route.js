@@ -6,6 +6,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const body = await request.json();
+  const contentType = request.headers.get("content-type") || "";
+  const body = contentType.includes("multipart/form-data")
+    ? await request.formData()
+    : await request.json();
   return proxyAuthenticated("/api/products/", { method: "POST", body });
 }

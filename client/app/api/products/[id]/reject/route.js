@@ -6,11 +6,12 @@ function parseId(value) {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-export async function POST(_request, { params }) {
+export async function POST(request, { params }) {
   const { id: rawId } = await params;
   const id = parseId(rawId);
   if (!id) {
     return NextResponse.json({ detail: "Invalid product id." }, { status: 400 });
   }
-  return proxyAuthenticated(`/api/products/${id}/reject/`, { method: "POST", body: {} });
+  const body = await request.json();
+  return proxyAuthenticated(`/api/products/${id}/reject/`, { method: "POST", body });
 }
