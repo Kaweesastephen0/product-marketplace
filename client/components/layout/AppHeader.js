@@ -4,6 +4,7 @@ import { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
+// Renders the dashboard header, profile menu, and quick actions.
 export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogout, onOpenProfile }) {
   const [menuOpen, setMenuOpen] = useState(false);
 

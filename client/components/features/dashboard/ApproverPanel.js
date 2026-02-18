@@ -2,23 +2,24 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import MetricCards from "@/components/features/dashboard/components/MetricCards";
-import ProductManagerPanel from "@/components/features/dashboard/components/ProductManagerPanel";
+import ApprovalPanel from "@/components/features/dashboard/ApprovalPanel";
+import MetricCards from "@/components/features/dashboard/MetricCards";
 import { productsService } from "@/lib/services/products.service";
 
-export default function EditorPanel({ section = "pending" }) {
+// Renders approver metrics and product approval management section.
+export default function ApproverPanel({ section = "pending" }) {
   const pendingQuery = useQuery({
-    queryKey: ["editor-stats", "pending"],
+    queryKey: ["approver-stats", "pending"],
     queryFn: () => productsService.list({ page: 1, status: "pending_approval" }),
     staleTime: 30_000,
   });
   const approvedQuery = useQuery({
-    queryKey: ["editor-stats", "approved"],
+    queryKey: ["approver-stats", "approved"],
     queryFn: () => productsService.list({ page: 1, status: "approved" }),
     staleTime: 30_000,
   });
   const rejectedQuery = useQuery({
-    queryKey: ["editor-stats", "rejected"],
+    queryKey: ["approver-stats", "rejected"],
     queryFn: () => productsService.list({ page: 1, status: "rejected" }),
     staleTime: 30_000,
   });
@@ -38,7 +39,7 @@ export default function EditorPanel({ section = "pending" }) {
       />
 
       <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
-        <ProductManagerPanel mode="editor" section={section} />
+        <ApprovalPanel section={section} />
       </section>
     </div>
   );

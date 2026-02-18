@@ -12,12 +12,13 @@ import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import IconInput from "@/components/ui/IconInput";
 import TablePagination from "@/components/ui/TablePagination";
-import { useProductsQuery } from "@/components/features/products/hooks/useProductsQuery";
-import { useProductMutations } from "@/components/features/products/hooks/useProductMutations";
+import { useProductsQuery } from "@/components/features/products/useProductsQuery";
+import { useProductMutations } from "@/components/features/products/useProductMutations";
 import { useNotify } from "@/hooks/useNotify";
 
 const emptyForm = { name: "", description: "", price: "", image_url: "", image: null };
 
+// Maps dashboard section keys to product status filter values.
 function sectionToStatus(section) {
   if (section === "pending") return "pending_approval";
   if (section === "confirmed") return "approved";
@@ -25,6 +26,7 @@ function sectionToStatus(section) {
   return "";
 }
 
+// Renders product filters, product table, and create/edit product workflows.
 export default function ProductManagerPanel({ mode, section }) {
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(1);
@@ -100,12 +102,14 @@ export default function ProductManagerPanel({ mode, section }) {
     setImagePreview("");
   }, [form.image, form.image_url, editing]);
 
+  // Opens the product form in create mode and resets form state.
   const openCreate = () => {
     setEditing(null);
     setForm(emptyForm);
     setDialogOpen(true);
   };
 
+  // Opens the product form in edit mode with the selected product values.
   const openEdit = (item) => {
     setEditing(item);
     setForm({
@@ -118,6 +122,7 @@ export default function ProductManagerPanel({ mode, section }) {
     setDialogOpen(true);
   };
 
+  // Validates product form input and creates or updates the product.
   const onSave = async () => {
     try {
       if (!form.name || Number(form.price) <= 0) {
@@ -153,6 +158,7 @@ export default function ProductManagerPanel({ mode, section }) {
     }
   };
 
+  // Submits a draft or rejected product for approval review.
   const submitForApproval = async (id) => {
     if (!id) {
       notify.error("Invalid product id");
@@ -166,6 +172,7 @@ export default function ProductManagerPanel({ mode, section }) {
     }
   };
 
+  // Approves the selected product through the product mutation.
   const approveProduct = async (id) => {
     if (!id) {
       notify.error("Invalid product id");
@@ -179,6 +186,7 @@ export default function ProductManagerPanel({ mode, section }) {
     }
   };
 
+  // Sets the selected product as the delete confirmation target.
   const deleteProduct = async (id) => {
     if (!id) {
       notify.error("Invalid product id");
@@ -187,6 +195,7 @@ export default function ProductManagerPanel({ mode, section }) {
     setDeleteTarget(rows.find((row) => row.id === id) || { id, name: "this product" });
   };
 
+  // Deletes the selected product after confirmation.
   const confirmDeleteProduct = async () => {
     if (!deleteTarget?.id) return;
     try {
@@ -198,6 +207,7 @@ export default function ProductManagerPanel({ mode, section }) {
     }
   };
 
+  // Opens the product details modal for the selected row.
   const viewProduct = (row) => {
     if (!row?.id) {
       notify.error("Invalid product id");
@@ -207,6 +217,7 @@ export default function ProductManagerPanel({ mode, section }) {
     setViewModalOpen(true);
   };
 
+  // Validates the chosen file and stores it as the product image.
   const handleImageSelect = (file) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {

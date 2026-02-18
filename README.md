@@ -259,8 +259,8 @@ Styling/build packages:
 - `client/features/auth/components/LoginForm.js`: validated login form.
 - `client/features/products/components/ProductTableSection.js`: paginated table + role-aware actions.
 - `client/features/products/components/ProductFormModal.js`: create/edit modal.
-- `client/features/products/hooks/useProductsQuery.js`: React Query product list hook.
-- `client/features/products/hooks/useProductMutations.js`: create/update/approve/submit/delete hooks.
+- `client/features/products/useProductsQuery.js`: React Query product list hook.
+- `client/features/products/useProductMutations.js`: create/update/approve/submit/delete hooks.
 - `client/components/Can.js`: role-based conditional rendering wrapper.
 - `client/components/ui/Sidebar.js`: responsive collapsible sidebar.
 - `client/hooks/useAuth.js`: auth context backed by React Query `/me`.

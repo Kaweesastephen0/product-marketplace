@@ -9,10 +9,10 @@ import LockOutlined from "@mui/icons-material/LockOutlined";
 import AppFooter from "@/components/layout/AppFooter";
 import AppHeader from "@/components/layout/AppHeader";
 import HoverSidebar from "@/components/layout/HoverSidebar";
-import AdminPanel from "@/components/features/dashboard/components/AdminPanel";
-import ApproverPanel from "@/components/features/dashboard/components/ApproverPanel";
-import EditorPanel from "@/components/features/dashboard/components/EditorPanel";
-import OwnerPanel from "@/components/features/dashboard/components/OwnerPanel";
+import AdminPanel from "@/components/features/dashboard/AdminPanel";
+import ApproverPanel from "@/components/features/dashboard/ApproverPanel";
+import EditorPanel from "@/components/features/dashboard/EditorPanel";
+import OwnerPanel from "@/components/features/dashboard/OwnerPanel";
 import IconInput from "@/components/ui/IconInput";
 import Modal from "@/components/ui/Modal";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,10 +20,12 @@ import { useNotify } from "@/hooks/useNotify";
 import { authService } from "@/lib/services/auth.service";
 import { ROLE_NAVIGATION } from "@/types/navigation";
 
+// Returns the default sidebar section key for the given role.
 function selectDefaultSection(role) {
   return ROLE_NAVIGATION[role]?.[0]?.key || "overview";
 }
 
+// Renders the authenticated dashboard and role-based panel conten.
 export default function DashboardPage() {
   const router = useRouter();
   const notify = useNotify();
@@ -50,7 +52,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace("/login");
+      router.replace("/");
     }
   }, [isLoading, isAuthenticated, router]);
 
@@ -74,6 +76,7 @@ export default function DashboardPage() {
 
   const updateProfileMutation = useMutation({ mutationFn: authService.updateProfile });
 
+  // Logs the user out, clears cached auth state, and redirects to login.
   const handleLogout = async () => {
     try {
       await authService.logout();
@@ -82,10 +85,11 @@ export default function DashboardPage() {
       notify.warning("Session cleared");
     } finally {
       clearAuthCache();
-      router.replace("/login");
+      router.replace("/");
     }
   };
 
+  // Saves profile changes, optionally updates password, and refreshes user data.
   const handleSaveProfile = async () => {
     try {
       await updateProfileMutation.mutateAsync({
@@ -125,6 +129,7 @@ export default function DashboardPage() {
     return null;
   }
 
+  // Performs content operations.
   const content = (() => {
     if (role === "admin") return <AdminPanel section={active} />;
     if (role === "business_owner") return <OwnerPanel section={active} />;

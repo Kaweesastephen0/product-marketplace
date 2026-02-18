@@ -1,5 +1,6 @@
 "use client";
 
+// Renders the error component UI.
 export default function DashboardError({ error, reset }) {
   return (
     <div className="p-4 sm:p-6">

@@ -2,10 +2,12 @@
 
 import { useEffect } from "react";
 
+// Renders a closable modal with scrollable content and escape key handling.
 export default function Modal({ open, onClose, title, children, maxWidthClass = "max-w-lg" }) {
   useEffect(() => {
     if (!open) return undefined;
 
+    // Runs the key down event handler.
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
         onClose();

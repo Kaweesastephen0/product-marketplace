@@ -6,6 +6,7 @@ export const ROLE_PERMISSIONS = {
   viewer: [],
 };
 
+// Performs has permission operations.
 export function hasPermission(role, permission) {
   if (!role) return false;
   const permissions = ROLE_PERMISSIONS[role] || [];

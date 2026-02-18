@@ -9,9 +9,9 @@ import PersonOutlined from "@mui/icons-material/PersonOutlined";
 import BadgeOutlined from "@mui/icons-material/BadgeOutlined";
 import { useEffect, useState } from "react";
 
-import MetricCards from "@/components/features/dashboard/components/MetricCards";
-import ProductManagerPanel from "@/components/features/dashboard/components/ProductManagerPanel";
-import UserManagementPanel from "@/components/features/dashboard/components/UserManagementPanel";
+import MetricCards from "@/components/features/dashboard//MetricCards";
+import ProductManagerPanel from "@/components/features/dashboard/ProductManagerPanel";
+import UserManagementPanel from "@/components/features/dashboard/UserManagementPanel";
 import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import IconInput from "@/components/ui/IconInput";
@@ -28,6 +28,7 @@ const initialForm = {
 };
 const PAGE_SIZE = 10;
 
+// Renders admin metrics, business management, and admin dashboard sections.
 export default function AdminPanel({ section = "overview" }) {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -71,6 +72,7 @@ export default function AdminPanel({ section = "overview" }) {
     },
   });
 
+  // Runs the create owner event handler.
   const onCreateOwner = async () => {
     try {
       await createOwner.mutateAsync(form);
@@ -82,11 +84,13 @@ export default function AdminPanel({ section = "overview" }) {
     }
   };
 
+  // Runs the open edit business event handler.
   const onOpenEditBusiness = (business) => {
     setEditBusiness({ id: business.id, name: business.name || "" });
     setEditOpen(true);
   };
 
+  // Runs the save business event handler.
   const onSaveBusiness = async () => {
     if (!editBusiness.id || !editBusiness.name.trim()) {
       notify.warning("Business name is required");
@@ -105,11 +109,13 @@ export default function AdminPanel({ section = "overview" }) {
     }
   };
 
+  // Runs the delete business event handler.
   const onDeleteBusiness = async (business) => {
     if (!business?.id) return;
     setDeleteBusinessTarget(business);
   };
 
+  // Runs the confirm delete business event handler.
   const onConfirmDeleteBusiness = async () => {
     if (!deleteBusinessTarget?.id) return;
     try {

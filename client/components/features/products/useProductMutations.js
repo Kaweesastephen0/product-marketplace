@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { productsService } from "@/lib/services/products.service";
 
+// Provides product create, update, submit, approve, reject, and delete mutations.
 export function useProductMutations({ page, status }) {
   const queryClient = useQueryClient();
   const key = ["products", page, status || "all"];

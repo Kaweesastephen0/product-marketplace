@@ -7,6 +7,7 @@ import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
 import PendingActionsOutlined from "@mui/icons-material/PendingActionsOutlined";
 import QueryStatsOutlined from "@mui/icons-material/QueryStatsOutlined";
 
+// Returns metric icon data.
 function getMetricIcon(label) {
   if (label.includes("Businesses")) return ApartmentOutlined;
   if (label.includes("Users")) return GroupsOutlined;
@@ -16,6 +17,7 @@ function getMetricIcon(label) {
   return QueryStatsOutlined;
 }
 
+// Renders a responsive grid of metric summary cards.
 export default function MetricCards({ items }) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">

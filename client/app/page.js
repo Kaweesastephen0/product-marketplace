@@ -2,6 +2,7 @@ import AuthModalButtons from "@/components/auth/AuthModalButtons";
 import AppFooter from "@/components/layout/AppFooter";
 import { getPublicProducts } from "@/lib/services/public-products.service";
 
+// Renders the page component UI.
 function StorefrontIcon({ className = "" }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
@@ -10,6 +11,7 @@ function StorefrontIcon({ className = "" }) {
   );
 }
 
+// Renders the page component UI.
 function ProductIcon({ className = "" }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
@@ -18,6 +20,7 @@ function ProductIcon({ className = "" }) {
   );
 }
 
+// Renders the public approved products page with pagination.
 export default async function PublicProductsPage({ searchParams }) {
   const params = await searchParams;
   const page = Number(params?.page || 1);
