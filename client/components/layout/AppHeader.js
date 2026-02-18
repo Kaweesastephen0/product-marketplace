@@ -4,7 +4,7 @@ import { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogout }) {
+export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogout, onOpenProfile }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -43,6 +43,16 @@ export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogo
           {menuOpen ? (
             <div className="absolute right-0 top-[calc(100%+6px)] z-[1200] min-w-44 rounded-xl border border-[#ded9cb] bg-white p-1 shadow-lg">
               <div className="rounded-lg px-3 py-2 text-xs text-[#6f6c63]">{user?.email}</div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onOpenProfile?.();
+                }}
+                className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[#211f1a] hover:bg-[#f5f4ef]"
+              >
+                Profile
+              </button>
               <button
                 type="button"
                 onClick={() => {

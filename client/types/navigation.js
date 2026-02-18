@@ -3,6 +3,7 @@ import StorefrontOutlined from "@mui/icons-material/StorefrontOutlined";
 import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
 import PeopleOutline from "@mui/icons-material/PeopleOutline";
 import FactCheckOutlined from "@mui/icons-material/FactCheckOutlined";
+import CheckCircleOutline from "@mui/icons-material/CheckCircleOutline";
 
 export const ROLE_NAVIGATION = {
   admin: [
@@ -16,6 +17,12 @@ export const ROLE_NAVIGATION = {
     { key: "users", label: "User Management", icon: PeopleOutline },
     { key: "products", label: "Products", icon: Inventory2Outlined },
   ],
-  editor: [{ key: "products", label: "Product Management", icon: Inventory2Outlined }],
-  approver: [{ key: "approvals", label: "Approvals", icon: FactCheckOutlined }],
+  editor: [
+    { key: "pending", label: "Pending", icon: FactCheckOutlined },
+    { key: "confirmed", label: "Confirmed", icon: CheckCircleOutline },
+  ],
+  approver: [
+    { key: "pending", label: "Pending", icon: FactCheckOutlined },
+    { key: "confirmed", label: "Confirmed", icon: CheckCircleOutline },
+  ],
 };

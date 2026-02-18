@@ -1,6 +1,7 @@
 import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
 import StorefrontOutlined from "@mui/icons-material/StorefrontOutlined";
 
+import AuthModalButtons from "@/components/auth/AuthModalButtons";
 import AppFooter from "@/components/layout/AppFooter";
 import { getPublicProducts } from "@/lib/services/public-products.service";
 
@@ -18,17 +19,7 @@ export default async function PublicProductsPage({ searchParams }) {
             <StorefrontOutlined className="text-[#176c55]" />
             <h1 className="m-0 text-xl font-semibold text-[#211f1a]">Product Marketplace</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <a href="/register" className="rounded-lg px-3 py-1.5 text-sm text-[#176c55] hover:bg-[#f1eee2]">
-              Register
-            </a>
-            <a
-              href="/login"
-              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47]"
-            >
-              Login
-            </a>
-          </div>
+          <AuthModalButtons />
         </div>
       </header>
 

@@ -7,7 +7,8 @@ function parseId(value) {
 }
 
 export async function PATCH(request, { params }) {
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const id = parseId(rawId);
   if (!id) {
     return NextResponse.json({ detail: "Invalid product id." }, { status: 400 });
   }
@@ -16,7 +17,8 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(_request, { params }) {
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const id = parseId(rawId);
   if (!id) {
     return NextResponse.json({ detail: "Invalid product id." }, { status: 400 });
   }
