@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { productsService } from "@/services/products.service";
+import { productsService } from "@/lib/services/products.service";
 
 export function useProductsQuery({ page, status }) {
   return useQuery({

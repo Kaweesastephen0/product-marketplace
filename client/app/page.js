@@ -12,10 +12,11 @@ import {
 } from "@mui/material";
 
 import AppFooter from "@/components/layout/AppFooter";
-import { getPublicProducts } from "@/services/public-products.service";
+import { getPublicProducts } from "@/lib/services/public-products.service";
 
 export default async function PublicProductsPage({ searchParams }) {
-  const page = Number(searchParams?.page || 1);
+  const params = await searchParams;
+  const page = Number(params?.page || 1);
   const payload = await getPublicProducts(page);
   const products = payload.results || [];
 

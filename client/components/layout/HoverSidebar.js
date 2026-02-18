@@ -68,7 +68,7 @@ export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, o
         sx={{
           display: { xs: "none", md: "block" },
           width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
-          transition: "width .2s ease",
+          transition: "width .4s ease",
           borderRight: "1px solid",
           borderColor: "divider",
           bgcolor: "background.paper",

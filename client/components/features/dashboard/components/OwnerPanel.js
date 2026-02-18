@@ -3,10 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, Stack } from "@mui/material";
 
-import MetricCards from "@/features/dashboard/components/MetricCards";
-import ProductManagerPanel from "@/features/dashboard/components/ProductManagerPanel";
-import UserManagementPanel from "@/features/dashboard/components/UserManagementPanel";
-import { businessService } from "@/services/business.service";
+import MetricCards from "@/components/features/dashboard/components/MetricCards";
+import ProductManagerPanel from "@/components/features/dashboard/components/ProductManagerPanel";
+import UserManagementPanel from "@/components/features/dashboard/components/UserManagementPanel";
+import { businessService } from "@/lib/services/business.service";
 
 export default function OwnerPanel({ section = "overview" }) {
   const statsQuery = useQuery({ queryKey: ["business-stats"], queryFn: businessService.statistics });

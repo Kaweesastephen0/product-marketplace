@@ -1,6 +1,6 @@
 import "./globals.css";
 
-import Providers from "@/app/providers";
+import Providers from "@/components/providers";
 
 export const metadata = {
   title: "Product Marketplace",

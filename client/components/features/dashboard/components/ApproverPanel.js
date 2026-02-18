@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@mui/material";
 
-import ApprovalPanel from "@/features/dashboard/components/ApprovalPanel";
+import ApprovalPanel from "@/components/features/dashboard/components/ApprovalPanel";
 
 export default function ApproverPanel() {
   return (

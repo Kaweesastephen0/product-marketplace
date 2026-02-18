@@ -15,8 +15,8 @@ import {
   Typography,
 } from "@mui/material";
 
-import { useProductsQuery } from "@/features/products/hooks/useProductsQuery";
-import { useProductMutations } from "@/features/products/hooks/useProductMutations";
+import { useProductsQuery } from "@/components/features/products/hooks/useProductsQuery";
+import { useProductMutations } from "@/components/features/products/hooks/useProductMutations";
 import { useNotify } from "@/hooks/useNotify";
 
 export default function ApprovalPanel() {
@@ -29,6 +29,10 @@ export default function ApprovalPanel() {
   const pages = Math.max(1, Math.ceil((productsQuery.data?.count || 0) / 20));
 
   const onApprove = async (id) => {
+    if (!id) {
+      notify.error("Invalid product id");
+      return;
+    }
     try {
       await approve.mutateAsync(id);
       notify.success("Product approved");
@@ -38,6 +42,10 @@ export default function ApprovalPanel() {
   };
 
   const onReject = async (id) => {
+    if (!id) {
+      notify.error("Invalid product id");
+      return;
+    }
     try {
       await reject.mutateAsync(id);
       notify.warning("Product rejected and moved to draft");
@@ -71,10 +79,10 @@ export default function ApprovalPanel() {
               <TableCell>${Number(row.price).toFixed(2)}</TableCell>
               <TableCell align="right">
                 <Stack direction="row" spacing={1} justifyContent="flex-end">
-                  <Button size="small" variant="contained" color="success" onClick={() => onApprove(row.id)}>
+                  <Button size="small" variant="contained" color="success" onClick={() => onApprove(row.id)} disabled={!row?.id}>
                     Approve
                   </Button>
-                  <Button size="small" variant="outlined" color="warning" onClick={() => onReject(row.id)}>
+                  <Button size="small" variant="outlined" color="warning" onClick={() => onReject(row.id)} disabled={!row?.id}>
                     Reject
                   </Button>
                 </Stack>

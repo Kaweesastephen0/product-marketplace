@@ -13,11 +13,11 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import MetricCards from "@/features/dashboard/components/MetricCards";
-import ProductManagerPanel from "@/features/dashboard/components/ProductManagerPanel";
-import UserManagementPanel from "@/features/dashboard/components/UserManagementPanel";
+import MetricCards from "@/components/features/dashboard/components/MetricCards";
+import ProductManagerPanel from "@/components/features/dashboard/components/ProductManagerPanel";
+import UserManagementPanel from "@/components/features/dashboard/components/UserManagementPanel";
 import { useNotify } from "@/hooks/useNotify";
-import { adminService } from "@/services/admin.service";
+import { adminService } from "@/lib/services/admin.service";
 
 const initialForm = { business_name: "", owner_email: "", owner_password: "" };
 

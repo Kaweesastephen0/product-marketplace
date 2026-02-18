@@ -1,10 +1,24 @@
 import { proxyAuthenticated } from "@/lib/backend-server";
+import { NextResponse } from "next/server";
+
+function parseId(value) {
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
 
 export async function PATCH(request, { params }) {
+  const id = parseId(params.id);
+  if (!id) {
+    return NextResponse.json({ detail: "Invalid product id." }, { status: 400 });
+  }
   const body = await request.json();
-  return proxyAuthenticated(`/api/products/${params.id}/`, { method: "PATCH", body });
+  return proxyAuthenticated(`/api/products/${id}/`, { method: "PATCH", body });
 }
 
 export async function DELETE(_request, { params }) {
-  return proxyAuthenticated(`/api/products/${params.id}/`, { method: "DELETE" });
+  const id = parseId(params.id);
+  if (!id) {
+    return NextResponse.json({ detail: "Invalid product id." }, { status: 400 });
+  }
+  return proxyAuthenticated(`/api/products/${id}/`, { method: "DELETE" });
 }

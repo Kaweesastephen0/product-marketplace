@@ -8,7 +8,7 @@ import { useState } from "react";
 
 import AppFooter from "@/components/layout/AppFooter";
 import { useNotify } from "@/hooks/useNotify";
-import { authService } from "@/services/auth.service";
+import { authService } from "@/lib/services/auth.service";
 
 export default function LoginPage() {
   const router = useRouter();

@@ -21,8 +21,8 @@ import {
   Typography,
 } from "@mui/material";
 
-import { useProductsQuery } from "@/features/products/hooks/useProductsQuery";
-import { useProductMutations } from "@/features/products/hooks/useProductMutations";
+import { useProductsQuery } from "@/components/features/products/hooks/useProductsQuery";
+import { useProductMutations } from "@/components/features/products/hooks/useProductMutations";
 import { useNotify } from "@/hooks/useNotify";
 
 const emptyForm = { name: "", description: "", price: "" };
@@ -186,7 +186,12 @@ export default function ProductManagerPanel({ mode }) {
                     </Button>
                   ) : null}
                   {canSubmit ? (
-                    <Button size="small" variant="outlined" onClick={() => submitForApproval(row.id)} disabled={!row?.id}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => submitForApproval(row.id)}
+                      disabled={!row?.id || row.status !== "draft"}
+                    >
                       Submit
                     </Button>
                   ) : null}

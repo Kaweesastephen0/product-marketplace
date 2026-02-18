@@ -7,13 +7,13 @@ import { useEffect, useMemo, useState } from "react";
 import AppFooter from "@/components/layout/AppFooter";
 import AppHeader from "@/components/layout/AppHeader";
 import HoverSidebar from "@/components/layout/HoverSidebar";
-import AdminPanel from "@/features/dashboard/components/AdminPanel";
-import ApproverPanel from "@/features/dashboard/components/ApproverPanel";
-import EditorPanel from "@/features/dashboard/components/EditorPanel";
-import OwnerPanel from "@/features/dashboard/components/OwnerPanel";
+import AdminPanel from "@/components/features/dashboard/components/AdminPanel";
+import ApproverPanel from "@/components/features/dashboard/components/ApproverPanel";
+import EditorPanel from "@/components/features/dashboard/components/EditorPanel";
+import OwnerPanel from "@/components/features/dashboard/components/OwnerPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotify } from "@/hooks/useNotify";
-import { authService } from "@/services/auth.service";
+import { authService } from "@/lib/services/auth.service";
 import { ROLE_NAVIGATION } from "@/types/navigation";
 
 function selectDefaultSection(role) {

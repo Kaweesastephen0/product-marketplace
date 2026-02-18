@@ -20,7 +20,7 @@ export default function AppFooter({ compact = false }) {
       }}
     >
       <Typography variant="caption" color="text.secondary" align="center" display="block">
-        Product Marketplace Platform · Secure role-based operations
+        copyRight &copy;  {new Date().getFullYear() } Product Marketplace Platform 
       </Typography>
     </Box>
   );

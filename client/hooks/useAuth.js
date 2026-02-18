@@ -4,7 +4,7 @@ import { createContext, useContext, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { authService } from "@/services/auth.service";
+import { authService } from "@/lib/services/auth.service";
 import { hasPermission } from "@/types/auth";
 
 const AuthContext = createContext(null);

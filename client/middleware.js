@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/auth-cookies";
 
-export function middleware(request) {
+export default function middleware(request) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/dashboard")) {

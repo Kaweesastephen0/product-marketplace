@@ -22,8 +22,8 @@ import {
 import { useState } from "react";
 
 import { useNotify } from "@/hooks/useNotify";
-import { adminService } from "@/services/admin.service";
-import { businessService } from "@/services/business.service";
+import { adminService } from "@/lib/services/admin.service";
+import { businessService } from "@/lib/services/business.service";
 
 const initialForm = {
   email: "",
