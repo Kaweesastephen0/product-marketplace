@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
+
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 const COLLAPSED_WIDTH = 76;
 const EXPANDED_WIDTH = 250;
 
-function SidebarContent({ items, activeKey, expanded, onSelect }) {
+function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
   return (
     <div className="flex h-full flex-col pt-4">
       <div className="overflow-hidden whitespace-nowrap px-4 pb-2 text-xs uppercase text-[#6f6c63]">
@@ -81,27 +84,65 @@ function SidebarContent({ items, activeKey, expanded, onSelect }) {
             P
           </span>
         </Link>
+        <button
+          type="button"
+          onClick={onLogout}
+          className={`mt-1 flex min-h-11 w-full items-center rounded-xl text-[#211f1a] transition-all duration-300 hover:bg-rose-50 hover:text-rose-700 ${
+            expanded ? "justify-start px-3" : "justify-center px-2"
+          }`}
+        >
+          <span
+            className={`inline-flex items-center justify-center transition-[min-width] duration-300 ${
+              expanded ? "min-w-9.5" : "min-w-0"
+            }`}
+          >
+            <LogoutOutlined fontSize="small" />
+          </span>
+          <span
+            className={`overflow-hidden whitespace-nowrap text-left text-[13px] transition-all duration-300 ${
+              expanded ? "max-w-[160px] opacity-100" : "max-w-0 opacity-0"
+            }`}
+          >
+            Logout
+          </span>
+        </button>
       </div>
     </div>
   );
 }
 
-export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, onMobileClose }) {
+export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, onMobileClose, onLogout }) {
   const [expanded, setExpanded] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const currentWidth = expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH;
 
   return (
     <>
-      <aside
-        className="sticky top-0 z-[1200] hidden h-screen border-r border-[#ded9cb] bg-[#fffef9] md:block"
+      <div
+        className="relative hidden md:block"
         style={{
-          width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
+          width: currentWidth,
           transition: "width 320ms cubic-bezier(0.4, 0, 0.2, 1)",
         }}
-        onMouseEnter={() => setExpanded(true)}
-        onMouseLeave={() => setExpanded(false)}
       >
-        <SidebarContent items={items} activeKey={activeKey} expanded={expanded} onSelect={onSelect} />
-      </aside>
+        <aside
+          className="fixed left-0 top-0 z-[1200] h-screen border-r border-[#ded9cb] bg-[#fffef9]"
+          style={{
+            width: currentWidth,
+            transition: "width 320ms cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+          onMouseEnter={() => setExpanded(true)}
+          onMouseLeave={() => setExpanded(false)}
+        >
+          <SidebarContent
+            items={items}
+            activeKey={activeKey}
+            expanded={expanded}
+            onSelect={onSelect}
+            onLogout={() => setLogoutConfirmOpen(true)}
+          />
+        </aside>
+      </div>
 
       {mobileOpen ? (
         <div
@@ -123,6 +164,7 @@ export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, o
                 onSelect(key);
                 onMobileClose();
               }}
+              onLogout={() => setLogoutConfirmOpen(true)}
             />
           </aside>
         </div>
@@ -140,6 +182,19 @@ export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, o
           }
         }
       `}</style>
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        title="Confirm Logout"
+        message="Are you sure you want to log out?"
+        confirmLabel="Logout"
+        confirmTone="warning"
+        onCancel={() => setLogoutConfirmOpen(false)}
+        onConfirm={() => {
+          setLogoutConfirmOpen(false);
+          onMobileClose?.();
+          onLogout?.();
+        }}
+      />
     </>
   );
 }

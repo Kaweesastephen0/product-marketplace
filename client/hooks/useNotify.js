@@ -52,10 +52,10 @@ export function NotifyProvider({ children }) {
       {children}
 
       {state.open ? (
-        <div className="pointer-events-none fixed right-4 top-4 z-[2000]">
+        <div className="pointer-events-none fixed right-4 top-4 z-2000">
           <div
             role="status"
-            className={`pointer-events-auto min-w-56 max-w-[420px] rounded-xl border px-4 py-3 text-sm shadow-lg ${
+            className={`pointer-events-auto min-w-56 max-w-105 rounded-xl border px-4 py-3 text-sm shadow-lg ${
               toneStyles[state.severity] || toneStyles.info
             }`}
           >

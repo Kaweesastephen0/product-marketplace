@@ -4,6 +4,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -11,8 +12,10 @@ from accounts.api.permissions import IsAdminOrBusinessOwner, IsSystemAdmin
 from accounts.api.serializers import (
     AdminUserUpdateSerializer,
     BusinessOwnerCreateSerializer,
+    CustomTokenObtainPairSerializer,
     OwnerUserCreateSerializer,
     OwnerUserUpdateSerializer,
+    SelfProfileUpdateSerializer,
     UserReadSerializer,
     ViewerRegistrationSerializer,
 )
@@ -39,6 +42,10 @@ class LogoutAPIView(APIView):
         return Response(status=status.HTTP_205_RESET_CONTENT)
 
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
 class MeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -47,8 +54,56 @@ class MeAPIView(APIView):
             {
                 "id": request.user.id,
                 "email": request.user.email,
+                "first_name": request.user.first_name,
+                "last_name": request.user.last_name,
                 "role": request.user.role_code,
+                "is_active": request.user.is_active,
                 "business_id": request.user.business_id,
+                "business_name": request.user.business.name if request.user.business_id else None,
+                "date_joined": request.user.date_joined,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def patch(self, request):
+        serializer = SelfProfileUpdateSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        validated = serializer.validated_data
+        user = request.user
+
+        update_fields = []
+        if "first_name" in validated:
+            user.first_name = validated.get("first_name", "")
+            update_fields.append("first_name")
+        if "last_name" in validated:
+            user.last_name = validated.get("last_name", "")
+            update_fields.append("last_name")
+
+        new_password = validated.get("new_password")
+        if new_password:
+            current_password = validated.get("current_password")
+            if not user.check_password(current_password):
+                return Response(
+                    {"current_password": ["Current password is incorrect."]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            user.set_password(new_password)
+            update_fields.append("password")
+
+        if update_fields:
+            user.save(update_fields=update_fields)
+
+        return Response(
+            {
+                "id": user.id,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "role": user.role_code,
+                "is_active": user.is_active,
+                "business_id": user.business_id,
+                "business_name": user.business.name if user.business_id else None,
+                "date_joined": user.date_joined,
             },
             status=status.HTTP_200_OK,
         )
@@ -112,6 +167,11 @@ class BusinessUserDetailAPIView(APIView):
             **serializer.validated_data,
         )
         return Response(UserReadSerializer(updated).data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        target = get_object_or_404(self.get_queryset(request), pk=pk)
+        UserService.delete_business_user(actor=request.user, user=target)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ViewerRegistrationAPIView(generics.GenericAPIView):

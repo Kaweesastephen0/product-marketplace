@@ -7,6 +7,7 @@ from accounts.models import AuditLog, Role
 from businesses.models import Business
 
 User = get_user_model()
+_UNSET = object()
 
 
 class AuditService:
@@ -55,11 +56,7 @@ class UserService:
         if role == Roles.BUSINESS_OWNER and not actor.has_role(Roles.ADMIN):
             raise PermissionDenied("Only admins can create business owners.")
 
-        if actor.has_role(Roles.BUSINESS_OWNER):
-            if role not in OWNER_MANAGED_ROLES:
-                raise PermissionDenied("Business owners can only create editor/approver users.")
-            business = actor.business
-        elif actor.has_role(Roles.ADMIN):
+        if actor.has_role(Roles.ADMIN):
             if role == Roles.BUSINESS_OWNER:
                 raise ValidationError("Use create-business-owner endpoint for owner accounts.")
             if role == Roles.ADMIN:
@@ -68,10 +65,14 @@ class UserService:
                 business = Business.objects.filter(id=business_id).first()
             else:
                 business = actor.business
+        elif actor.has_role(Roles.BUSINESS_OWNER):
+            if role not in OWNER_MANAGED_ROLES:
+                raise PermissionDenied("Business owners can only create editor/approver users.")
+            business = actor.business
         else:
             raise PermissionDenied("You do not have permission to create users.")
 
-        if role != Roles.ADMIN and not business:
+        if role not in {Roles.ADMIN, Roles.VIEWER} and not business:
             raise ValidationError("Business is required.")
 
         user = User.objects.create_user(
@@ -93,25 +94,64 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
-    def update_business_user(*, actor, user, role=None, is_active=None):
-        if actor.has_role(Roles.BUSINESS_OWNER):
+    def update_business_user(
+        *,
+        actor,
+        user,
+        email=_UNSET,
+        role=None,
+        is_active=None,
+        first_name=_UNSET,
+        last_name=_UNSET,
+        business_id=_UNSET,
+    ):
+        if actor.has_role(Roles.ADMIN):
+            pass
+        elif actor.has_role(Roles.BUSINESS_OWNER):
             if user.business_id != actor.business_id:
                 raise PermissionDenied("Cross-business updates are blocked.")
             if role and role not in OWNER_MANAGED_ROLES:
                 raise PermissionDenied("Business owners can only assign editor/approver roles.")
-        elif not actor.has_role(Roles.ADMIN):
+        else:
             raise PermissionDenied("You do not have permission to update users.")
 
         update_fields = []
+        if email is not _UNSET:
+            normalized_email = User.objects.normalize_email(email)
+            if User.objects.exclude(id=user.id).filter(email__iexact=normalized_email).exists():
+                raise ValidationError("A user with that email already exists.")
+            user.email = normalized_email
+            user.username = normalized_email
+            update_fields.extend(["email", "username"])
         if role is not None:
             user.role = Role.objects.get(code=role)
             update_fields.append("role")
         if is_active is not None:
             user.is_active = is_active
             update_fields.append("is_active")
+        if first_name is not _UNSET:
+            user.first_name = first_name
+            update_fields.append("first_name")
+        if last_name is not _UNSET:
+            user.last_name = last_name
+            update_fields.append("last_name")
+        if actor.has_role(Roles.ADMIN) and business_id is not _UNSET:
+            if business_id is None:
+                user.business = None
+            else:
+                business = Business.objects.filter(id=business_id).first()
+                if not business:
+                    raise ValidationError("Business does not exist.")
+                user.business = business
+            update_fields.append("business")
+
+        if user.role_code == Roles.ADMIN and user.business_id is not None:
+            user.business = None
+            if "business" not in update_fields:
+                update_fields.append("business")
 
         if update_fields:
-            if user.role_code != Roles.ADMIN and user.business_id is None:
+            if user.role_code not in {Roles.ADMIN, Roles.VIEWER} and user.business_id is None:
                 raise ValidationError("Non-admin users must belong to a business.")
             user.save(update_fields=update_fields)
             AuditService.log(
@@ -123,6 +163,34 @@ class UserService:
                 metadata={"updated_fields": update_fields},
             )
         return user
+
+    @staticmethod
+    @transaction.atomic
+    def delete_business_user(*, actor, user):
+        if actor.has_role(Roles.ADMIN):
+            if user.role_code == Roles.ADMIN:
+                raise ValidationError("Admin users cannot be deleted.")
+        elif actor.has_role(Roles.BUSINESS_OWNER):
+            if user.business_id != actor.business_id:
+                raise PermissionDenied("Cross-business deletes are blocked.")
+            if user.role_code not in OWNER_MANAGED_ROLES:
+                raise PermissionDenied("Business owners can only delete editor/approver users.")
+        else:
+            raise PermissionDenied("You do not have permission to delete users.")
+
+        user_id = user.id
+        user_role = user.role_code
+        user_business = user.business
+        user.delete()
+
+        AuditService.log(
+            action="user_deleted",
+            actor=actor,
+            business=user_business,
+            target_type="user",
+            target_id=user_id,
+            metadata={"role": user_role},
+        )
 
     @staticmethod
     @transaction.atomic

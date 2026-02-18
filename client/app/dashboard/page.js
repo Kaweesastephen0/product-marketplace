@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
+import LockOutlined from "@mui/icons-material/LockOutlined";
 
 import AppFooter from "@/components/layout/AppFooter";
 import AppHeader from "@/components/layout/AppHeader";
@@ -10,6 +13,8 @@ import AdminPanel from "@/components/features/dashboard/components/AdminPanel";
 import ApproverPanel from "@/components/features/dashboard/components/ApproverPanel";
 import EditorPanel from "@/components/features/dashboard/components/EditorPanel";
 import OwnerPanel from "@/components/features/dashboard/components/OwnerPanel";
+import IconInput from "@/components/ui/IconInput";
+import Modal from "@/components/ui/Modal";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotify } from "@/hooks/useNotify";
 import { authService } from "@/lib/services/auth.service";
@@ -22,8 +27,16 @@ function selectDefaultSection(role) {
 export default function DashboardPage() {
   const router = useRouter();
   const notify = useNotify();
-  const { user, isLoading, isAuthenticated, clearAuthCache } = useAuth();
+  const { user, isLoading, isAuthenticated, clearAuthCache, refetchMe } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    first_name: "",
+    last_name: "",
+    current_password: "",
+    new_password: "",
+    confirm_new_password: "",
+  });
 
   const role = user?.role;
   const menu = useMemo(() => ROLE_NAVIGATION[role] || [], [role]);
@@ -47,6 +60,20 @@ export default function DashboardPage() {
     }
   }, [role, router]);
 
+  useEffect(() => {
+    if (profileOpen) {
+      setProfileForm({
+        first_name: user?.first_name || "",
+        last_name: user?.last_name || "",
+        current_password: "",
+        new_password: "",
+        confirm_new_password: "",
+      });
+    }
+  }, [profileOpen, user]);
+
+  const updateProfileMutation = useMutation({ mutationFn: authService.updateProfile });
+
   const handleLogout = async () => {
     try {
       await authService.logout();
@@ -56,6 +83,33 @@ export default function DashboardPage() {
     } finally {
       clearAuthCache();
       router.replace("/login");
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      await updateProfileMutation.mutateAsync({
+        first_name: profileForm.first_name,
+        last_name: profileForm.last_name,
+        ...(profileForm.new_password
+          ? {
+              current_password: profileForm.current_password,
+              new_password: profileForm.new_password,
+              confirm_new_password: profileForm.confirm_new_password,
+            }
+          : {}),
+      });
+      await refetchMe();
+      notify.success("Profile updated");
+      setProfileForm((prev) => ({
+        ...prev,
+        current_password: "",
+        new_password: "",
+        confirm_new_password: "",
+      }));
+      setProfileOpen(false);
+    } catch (error) {
+      notify.error(error.message || "Failed to update profile");
     }
   };
 
@@ -74,38 +128,117 @@ export default function DashboardPage() {
   const content = (() => {
     if (role === "admin") return <AdminPanel section={active} />;
     if (role === "business_owner") return <OwnerPanel section={active} />;
-    if (role === "editor") return <EditorPanel />;
-    if (role === "approver") return <ApproverPanel />;
+    if (role === "editor") return <EditorPanel section={active} />;
+    if (role === "approver") return <ApproverPanel section={active} />;
     return (
       <div className="rounded-2xl border border-[#ded9cb] bg-white p-4 text-sm text-[#211f1a]">Unsupported role.</div>
     );
   })();
 
   return (
-    <div className="min-h-screen pb-9">
-      <div className="flex">
+    <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-0 flex-1">
         <HoverSidebar
           items={menu}
           activeKey={active}
           onSelect={setActive}
           mobileOpen={mobileOpen}
           onMobileClose={() => setMobileOpen(false)}
+          onLogout={handleLogout}
         />
 
-        <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col">
           <AppHeader
             title="Role-Based Dashboard"
             subtitle="Secure product marketplace operations"
             user={user}
             onOpenSidebar={() => setMobileOpen(true)}
             onLogout={handleLogout}
+            onOpenProfile={() => setProfileOpen(true)}
           />
 
-          <div className="p-2 sm:p-4">{content}</div>
+          <div className="flex-1 p-2 sm:p-4">{content}</div>
         </div>
       </div>
 
       <AppFooter />
+      <Modal open={profileOpen} onClose={() => setProfileOpen(false)} title="My Profile" maxWidthClass="max-w-2xl">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">First Name</span>
+              <IconInput
+                icon={PersonOutlineOutlined}
+                value={profileForm.first_name}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, first_name: e.target.value }))}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">Last Name</span>
+              <IconInput
+                icon={PersonOutlineOutlined}
+                value={profileForm.last_name}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, last_name: e.target.value }))}
+              />
+            </label>
+            <div className="sm:col-span-2">
+              <p className="m-0 text-xs uppercase tracking-wide text-[#6f6c63]">Email</p>
+              <p className="m-0 mt-1 text-sm text-[#211f1a]">{user?.email || "-"}</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-[#e3decf] p-3">
+            <h3 className="m-0 text-sm font-semibold text-[#211f1a]">Change Password</h3>
+            <div className="mt-2 space-y-3">
+              <label className="block">
+                <span className="mb-1 block text-sm text-[#211f1a]">Current Password</span>
+                <IconInput
+                  icon={LockOutlined}
+                  type="password"
+                  value={profileForm.current_password}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, current_password: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-sm text-[#211f1a]">New Password</span>
+                <IconInput
+                  icon={LockOutlined}
+                  type="password"
+                  value={profileForm.new_password}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, new_password: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-sm text-[#211f1a]">Confirm New Password</span>
+                <IconInput
+                  icon={LockOutlined}
+                  type="password"
+                  value={profileForm.confirm_new_password}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, confirm_new_password: e.target.value }))}
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setProfileOpen(false)}
+              className="rounded-lg border border-[#d6d0be] px-3 py-1.5 text-sm hover:bg-[#f1eee2]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveProfile}
+              disabled={updateProfileMutation.isPending}
+              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47] disabled:opacity-60"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -1,20 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import SellOutlined from "@mui/icons-material/SellOutlined";
+import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
+import AttachMoneyOutlined from "@mui/icons-material/AttachMoneyOutlined";
 
 import Modal from "@/components/ui/Modal";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import IconInput from "@/components/ui/IconInput";
+import TablePagination from "@/components/ui/TablePagination";
 import { useProductsQuery } from "@/components/features/products/hooks/useProductsQuery";
 import { useProductMutations } from "@/components/features/products/hooks/useProductMutations";
 import { useNotify } from "@/hooks/useNotify";
 
 const emptyForm = { name: "", description: "", price: "" };
 
-export default function ProductManagerPanel({ mode }) {
+function sectionToStatus(section) {
+  if (section === "pending") return "pending_approval";
+  if (section === "confirmed") return "approved";
+  return "";
+}
+
+export default function ProductManagerPanel({ mode, section }) {
   const [page, setPage] = useState(1);
-  const [status, setStatus] = useState("");
+  const hideDraftProducts = mode === "owner" || mode === "approver";
+  const [status, setStatus] = useState(hideDraftProducts ? "pending_approval" : sectionToStatus(section));
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const notify = useNotify();
   const productsQuery = useProductsQuery({ page, status });
@@ -28,6 +42,7 @@ export default function ProductManagerPanel({ mode }) {
   const showSubmittedBy = mode === "admin";
 
   const rows = productsQuery.data?.results || [];
+  const visibleRows = hideDraftProducts ? rows.filter((row) => row.status !== "draft") : rows;
   const totalCount = productsQuery.data?.count || 0;
   const pages = Math.max(1, Math.ceil(totalCount / 20));
 
@@ -38,6 +53,13 @@ export default function ProductManagerPanel({ mode }) {
     mutations.approve.isPending ||
     mutations.submit.isPending ||
     mutations.remove.isPending;
+
+  useEffect(() => {
+    if (section === "pending" || section === "confirmed") {
+      setStatus(sectionToStatus(section));
+      setPage(1);
+    }
+  }, [section]);
 
   const openCreate = () => {
     setEditing(null);
@@ -102,10 +124,15 @@ export default function ProductManagerPanel({ mode }) {
       notify.error("Invalid product id");
       return;
     }
-    if (!window.confirm("Delete this product?")) return;
+    setDeleteTarget(rows.find((row) => row.id === id) || { id, name: "this product" });
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!deleteTarget?.id) return;
     try {
-      await mutations.remove.mutateAsync(id);
+      await mutations.remove.mutateAsync(deleteTarget.id);
       notify.success("Product deleted");
+      setDeleteTarget(null);
     } catch (error) {
       notify.error(error.message);
     }
@@ -121,7 +148,9 @@ export default function ProductManagerPanel({ mode }) {
             { label: "Draft", value: "draft" },
             { label: "Pending", value: "pending_approval" },
             { label: "Approved", value: "approved" },
-          ].map((option) => (
+          ]
+            .filter((option) => !(hideDraftProducts && (option.value === "" || option.value === "draft")))
+            .map((option) => (
             <button
               key={option.value || "all"}
               type="button"
@@ -137,7 +166,7 @@ export default function ProductManagerPanel({ mode }) {
             >
               {option.label}
             </button>
-          ))}
+            ))}
 
           {canCreate ? (
             <button
@@ -163,7 +192,7 @@ export default function ProductManagerPanel({ mode }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {visibleRows.map((row) => (
               <tr key={row.id} className="border-t border-[#efe9d7]">
                 <td className="px-3 py-2">{row.name}</td>
                 <td className="px-3 py-2">
@@ -183,7 +212,7 @@ export default function ProductManagerPanel({ mode }) {
                 {showSubmittedBy ? <td className="px-3 py-2">{row.created_by_email || "-"}</td> : null}
                 <td className="px-3 py-2">
                   <div className="flex flex-wrap justify-end gap-1.5">
-                    {canEdit ? (
+                    {canEdit && row.status !== "approved" ? (
                       <button
                         type="button"
                         onClick={() => openEdit(row)}
@@ -228,7 +257,7 @@ export default function ProductManagerPanel({ mode }) {
               </tr>
             ))}
 
-            {!rows.length && !productsQuery.isLoading ? (
+            {!visibleRows.length && !productsQuery.isLoading ? (
               <tr className="border-t border-[#efe9d7]">
                 <td colSpan={showSubmittedBy ? 5 : 4} className="px-3 py-4 text-center text-[#6f6c63]">
                   No products available.
@@ -239,27 +268,12 @@ export default function ProductManagerPanel({ mode }) {
         </table>
       </div>
 
-      <div className="mt-3 flex items-center justify-center gap-2 text-sm">
-        <button
-          type="button"
-          onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-          disabled={page <= 1}
-          className="rounded-lg border border-[#d6d0be] px-3 py-1 hover:bg-[#f1eee2] disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <span className="text-[#6f6c63]">
-          {page} / {pages}
-        </span>
-        <button
-          type="button"
-          onClick={() => setPage((prev) => Math.min(pages, prev + 1))}
-          disabled={page >= pages}
-          className="rounded-lg border border-[#d6d0be] px-3 py-1 hover:bg-[#f1eee2] disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      <TablePagination
+        page={page}
+        totalPages={pages}
+        onPrev={() => setPage((prev) => Math.max(1, prev - 1))}
+        onNext={() => setPage((prev) => Math.min(pages, prev + 1))}
+      />
 
       <Modal
         open={dialogOpen}
@@ -270,28 +284,29 @@ export default function ProductManagerPanel({ mode }) {
         <div className="space-y-3">
           <label className="block">
             <span className="mb-1 block text-sm text-[#211f1a]">Name</span>
-            <input
+            <IconInput
+              icon={SellOutlined}
               value={form.name}
               onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
             />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm text-[#211f1a]">Description</span>
-            <textarea
+            <IconInput
+              icon={DescriptionOutlined}
+              as="textarea"
               value={form.description}
               onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
               rows={3}
-              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
             />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm text-[#211f1a]">Price</span>
-            <input
+            <IconInput
+              icon={AttachMoneyOutlined}
               type="number"
               value={form.price}
               onChange={(e) => setForm((prev) => ({ ...prev, price: e.target.value }))}
-              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
             />
           </label>
           <div className="flex justify-end gap-2">
@@ -313,6 +328,15 @@ export default function ProductManagerPanel({ mode }) {
           </div>
         </div>
       </Modal>
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${deleteTarget?.name || "this product"}"?`}
+        confirmLabel="Delete"
+        pending={mutations.remove.isPending}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDeleteProduct}
+      />
     </div>
   );
 }
