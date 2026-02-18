@@ -149,8 +149,8 @@ export default function DashboardPage() {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <AppHeader
-            title="Role-Based Dashboard"
-            subtitle="Secure product marketplace operations"
+            title="Dashboard"
+            subtitle="Products marketplace dashboard"
             user={user}
             onOpenSidebar={() => setMobileOpen(true)}
             onLogout={handleLogout}

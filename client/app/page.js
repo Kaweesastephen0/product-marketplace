@@ -27,16 +27,16 @@ export default async function PublicProductsPage({ searchParams }) {
   return (
     <div className="min-h-screen pb-10">
       <header className="border-b border-[#ded9cb] bg-[#fffef9]">
-        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-3 px-4 py-5">
+        <div className="mx-auto flex w-full max-w-300 items-center justify-between gap-3 px-4 py-5">
           <div className="flex items-center gap-2">
             <StorefrontIcon className="h-6 w-6 text-[#176c55]" />
-            <h1 className="m-0 text-xl font-semibold text-[#211f1a]">Product Marketplace</h1>
+            <h1 className="m-0 text-xl font-semibold text-[#211f1a]">Marketplace</h1>
           </div>
           <AuthModalButtons />
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1200px] px-4 py-6">
+      <main className="mx-auto w-full max-w-300 px-4 py-6">
         <h2 className="m-0 text-3xl font-bold text-[#211f1a]">Approved Products</h2>
         <p className="m-0 mt-1 text-sm text-[#6f6c63]">Public catalog of products approved by business approvers.</p>
 
