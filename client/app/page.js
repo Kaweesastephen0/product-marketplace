@@ -1,15 +1,5 @@
 import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
 import StorefrontOutlined from "@mui/icons-material/StorefrontOutlined";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Grid,
-  Stack,
-  Typography,
-} from "@mui/material";
 
 import AppFooter from "@/components/layout/AppFooter";
 import { getPublicProducts } from "@/lib/services/public-products.service";
@@ -21,64 +11,75 @@ export default async function PublicProductsPage({ searchParams }) {
   const products = payload.results || [];
 
   return (
-    <Box sx={{ minHeight: "100vh", pb: 10 }}>
-      <Box sx={{ borderBottom: "1px solid", borderColor: "divider", bgcolor: "background.paper" }}>
-        <Box sx={{ maxWidth: 1200, mx: "auto", px: 2, py: 2.5 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <StorefrontOutlined color="primary" />
-              <Typography variant="h6">Product Marketplace</Typography>
-            </Stack>
-            <Stack direction="row" spacing={1}>
-              <Button href="/register">Register</Button>
-              <Button href="/login" variant="contained">Login</Button>
-            </Stack>
-          </Stack>
-        </Box>
-      </Box>
+    <div className="min-h-screen pb-10">
+      <header className="border-b border-[#ded9cb] bg-[#fffef9]">
+        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-3 px-4 py-5">
+          <div className="flex items-center gap-2">
+            <StorefrontOutlined className="text-[#176c55]" />
+            <h1 className="m-0 text-xl font-semibold text-[#211f1a]">Product Marketplace</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <a href="/register" className="rounded-lg px-3 py-1.5 text-sm text-[#176c55] hover:bg-[#f1eee2]">
+              Register
+            </a>
+            <a
+              href="/login"
+              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47]"
+            >
+              Login
+            </a>
+          </div>
+        </div>
+      </header>
 
-      <Box sx={{ maxWidth: 1200, mx: "auto", px: 2, py: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          Approved Products
-        </Typography>
-        <Typography variant="body2" color="text.secondary" mb={3}>
-          Public catalog of products approved by business approvers.
-        </Typography>
+      <main className="mx-auto w-full max-w-[1200px] px-4 py-6">
+        <h2 className="m-0 text-3xl font-bold text-[#211f1a]">Approved Products</h2>
+        <p className="m-0 mt-1 text-sm text-[#6f6c63]">Public catalog of products approved by business approvers.</p>
 
-        <Grid container spacing={2}>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {products.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
-              <Card sx={{ height: "100%" }}>
-                <CardContent>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                    <Typography variant="h6">{product.name}</Typography>
-                    <Inventory2Outlined color="action" fontSize="small" />
-                  </Stack>
-                  <Typography variant="body2" color="text.secondary" minHeight={42}>
-                    {product.description || "No description"}
-                  </Typography>
-                  <Chip label={product.business_name} size="small" sx={{ mt: 1 }} />
-                  <Typography variant="h5" mt={2}>${Number(product.price).toFixed(2)}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+            <article key={product.id} className="h-full rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h3 className="m-0 text-lg font-semibold text-[#211f1a]">{product.name}</h3>
+                <Inventory2Outlined className="text-[#8d897b]" fontSize="small" />
+              </div>
+              <p className="m-0 min-h-[42px] text-sm text-[#6f6c63]">{product.description || "No description"}</p>
+              <p className="mt-2 inline-block rounded-full bg-[#f1eee2] px-2 py-1 text-xs text-[#4c493f]">
+                {product.business_name}
+              </p>
+              <p className="m-0 mt-3 text-2xl font-bold text-[#211f1a]">${Number(product.price).toFixed(2)}</p>
+            </article>
           ))}
-        </Grid>
+        </div>
 
-        <Stack direction="row" justifyContent="space-between" mt={3}>
-          <Button href={`/?page=${Math.max(1, page - 1)}`} disabled={page <= 1} variant="outlined">
+        <div className="mt-6 flex items-center justify-between">
+          <a
+            href={`/?page=${Math.max(1, page - 1)}`}
+            aria-disabled={page <= 1}
+            className={`rounded-lg border px-3 py-1.5 text-sm ${
+              page <= 1
+                ? "pointer-events-none border-[#dfdbce] text-[#b1ac9d]"
+                : "border-[#d6d0be] text-[#211f1a] hover:bg-[#f1eee2]"
+            }`}
+          >
             Previous
-          </Button>
-          <Typography variant="body2" color="text.secondary" sx={{ alignSelf: "center" }}>
-            Page {page}
-          </Typography>
-          <Button href={`/?page=${page + 1}`} disabled={!payload.next} variant="outlined">
+          </a>
+          <p className="m-0 text-sm text-[#6f6c63]">Page {page}</p>
+          <a
+            href={`/?page=${page + 1}`}
+            aria-disabled={!payload.next}
+            className={`rounded-lg border px-3 py-1.5 text-sm ${
+              !payload.next
+                ? "pointer-events-none border-[#dfdbce] text-[#b1ac9d]"
+                : "border-[#d6d0be] text-[#211f1a] hover:bg-[#f1eee2]"
+            }`}
+          >
             Next
-          </Button>
-        </Stack>
-      </Box>
+          </a>
+        </div>
+      </main>
 
       <AppFooter />
-    </Box>
+    </div>
   );
 }

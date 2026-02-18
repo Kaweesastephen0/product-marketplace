@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, Stack } from "@mui/material";
 
 import MetricCards from "@/components/features/dashboard/components/MetricCards";
 import ProductManagerPanel from "@/components/features/dashboard/components/ProductManagerPanel";
@@ -13,7 +12,7 @@ export default function OwnerPanel({ section = "overview" }) {
   const stats = statsQuery.data || {};
 
   return (
-    <Stack spacing={2.5}>
+    <div className="space-y-4">
       {(section === "overview" || section === "users") && (
         <MetricCards
           items={[
@@ -25,21 +24,17 @@ export default function OwnerPanel({ section = "overview" }) {
         />
       )}
 
-      {section === "users" && (
-        <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider" }}>
-          <CardContent>
-            <UserManagementPanel />
-          </CardContent>
-        </Card>
-      )}
+      {section === "users" ? (
+        <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
+          <UserManagementPanel />
+        </section>
+      ) : null}
 
-      {(section === "products" || section === "overview") && (
-        <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider" }}>
-          <CardContent>
-            <ProductManagerPanel mode="owner" />
-          </CardContent>
-        </Card>
-      )}
-    </Stack>
+      {section === "products" || section === "overview" ? (
+        <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
+          <ProductManagerPanel mode="owner" />
+        </section>
+      ) : null}
+    </div>
   );
 }

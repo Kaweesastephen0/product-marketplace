@@ -1,26 +1,9 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Divider,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
+import Modal from "@/components/ui/Modal";
 import { useNotify } from "@/hooks/useNotify";
 import { adminService } from "@/lib/services/admin.service";
 import { businessService } from "@/lib/services/business.service";
@@ -96,116 +79,129 @@ export default function UserManagementPanel({ mode = "owner" }) {
   const users = usersQuery.data || [];
 
   return (
-    <Box>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h6">User Management</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="m-0 text-xl font-semibold text-[#211f1a]">User Management</h2>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47]"
+        >
           Add User
-        </Button>
-      </Stack>
+        </button>
+      </div>
 
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Email</TableCell>
-            <TableCell>Role</TableCell>
-            {mode === "admin" ? <TableCell>Business</TableCell> : null}
-            <TableCell>Status</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.email}</TableCell>
-              <TableCell sx={{ textTransform: "capitalize" }}>{user.role}</TableCell>
-              {mode === "admin" ? <TableCell>{user.business_id ?? "-"}</TableCell> : null}
-              <TableCell>{user.is_active ? "Active" : "Inactive"}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="overflow-x-auto rounded-xl border border-[#e3decf]">
+        <table className="min-w-full border-collapse text-sm">
+          <thead className="bg-[#f5f2e8] text-left text-[#4c493f]">
+            <tr>
+              <th className="px-3 py-2 font-medium">Email</th>
+              <th className="px-3 py-2 font-medium">Role</th>
+              {mode === "admin" ? <th className="px-3 py-2 font-medium">Business</th> : null}
+              <th className="px-3 py-2 font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id} className="border-t border-[#efe9d7]">
+                <td className="px-3 py-2">{user.email}</td>
+                <td className="px-3 py-2 capitalize">{user.role}</td>
+                {mode === "admin" ? <td className="px-3 py-2">{user.business_id ?? "-"}</td> : null}
+                <td className="px-3 py-2">{user.is_active ? "Active" : "Inactive"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {open ? (
-        <Card sx={{ mt: 2, border: "1px solid", borderColor: "divider" }} elevation={0}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Create Business User
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Stack spacing={2}>
-            <TextField
-              label="Email"
+      <Modal open={open} onClose={() => setOpen(false)} title="Create Business User">
+        <div className="space-y-3">
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#211f1a]">Email</span>
+            <input
               value={form.email}
               onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
             />
-            <TextField
-              label="Password"
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#211f1a]">Password</span>
+            <input
               type="password"
               value={form.password}
               onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
             />
-            <Box>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Role
-              </Typography>
-              <RadioGroup
-                row
-                value={form.role}
-                onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
-              >
-              {mode === "admin" ? (
-                <>
-                  <FormControlLabel value="admin" control={<Radio size="small" />} label="Admin" />
-                  <FormControlLabel
-                    value="business_owner"
-                    control={<Radio size="small" />}
-                    label="Business Owner"
-                  />
-                  <FormControlLabel value="editor" control={<Radio size="small" />} label="Editor" />
-                  <FormControlLabel value="approver" control={<Radio size="small" />} label="Approver" />
-                  <FormControlLabel value="viewer" control={<Radio size="small" />} label="Viewer" />
-                  </>
-                ) : (
-                  <>
-                    <FormControlLabel value="editor" control={<Radio size="small" />} label="Editor" />
-                    <FormControlLabel value="approver" control={<Radio size="small" />} label="Approver" />
-                  </>
-                )}
-              </RadioGroup>
-            </Box>
+          </label>
 
-            {mode === "admin" && form.role === "business_owner" ? (
-              <TextField
-                label="Business Name"
+          <fieldset className="space-y-2">
+            <legend className="mb-1 text-sm text-[#211f1a]">Role</legend>
+            <div className="flex flex-wrap gap-3 text-sm">
+              {(mode === "admin"
+                ? ["admin", "business_owner", "editor", "approver", "viewer"]
+                : ["editor", "approver"]
+              ).map((role) => (
+                <label key={role} className="inline-flex items-center gap-1">
+                  <input
+                    type="radio"
+                    name="role"
+                    value={role}
+                    checked={form.role === role}
+                    onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
+                  />
+                  <span className="capitalize">{role.replace("_", " ")}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          {mode === "admin" && form.role === "business_owner" ? (
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">Business Name</span>
+              <input
                 value={form.business_name}
                 onChange={(e) => setForm((prev) => ({ ...prev, business_name: e.target.value }))}
-                helperText="A new business profile will be created first, then owner account"
+                className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
               />
-            ) : null}
+              <span className="mt-1 block text-xs text-[#6f6c63]">
+                A new business profile will be created first, then owner account
+              </span>
+            </label>
+          ) : null}
 
-            {mode === "admin" && form.role !== "admin" && form.role !== "business_owner" ? (
-              <TextField
-                label="Business ID"
+          {mode === "admin" && form.role !== "admin" && form.role !== "business_owner" ? (
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">Business ID</span>
+              <input
                 type="number"
                 value={form.business_id}
                 onChange={(e) => setForm((prev) => ({ ...prev, business_id: e.target.value }))}
-                helperText="Required for editor/approver/viewer accounts"
+                className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
               />
-            ) : null}
-              <Stack direction="row" spacing={1} justifyContent="flex-end">
-                <Button onClick={() => setOpen(false)}>Cancel</Button>
-                <Button
-                  onClick={onCreate}
-                  variant="contained"
-                  disabled={createMutation.isPending || createBusinessOwnerMutation.isPending}
-                >
-                  Create
-                </Button>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      ) : null}
-    </Box>
+              <span className="mt-1 block text-xs text-[#6f6c63]">Required for editor/approver/viewer accounts</span>
+            </label>
+          ) : null}
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="rounded-lg border border-[#d6d0be] px-3 py-1.5 text-sm hover:bg-[#f1eee2]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onCreate}
+              disabled={createMutation.isPending || createBusinessOwnerMutation.isPending}
+              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47] disabled:opacity-60"
+            >
+              Create
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
   );
 }

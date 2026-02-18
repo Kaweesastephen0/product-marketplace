@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Box, Card, CardContent, CircularProgress, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
 import AppFooter from "@/components/layout/AppFooter";
@@ -62,17 +61,13 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
-        <CircularProgress />
-      </Box>
+      <div className="grid min-h-screen place-items-center">
+        <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#d9d2bf] border-t-[#176c55]" />
+      </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  if (role === "viewer") {
+  if (!isAuthenticated || role === "viewer") {
     return null;
   }
 
@@ -82,17 +77,13 @@ export default function DashboardPage() {
     if (role === "editor") return <EditorPanel />;
     if (role === "approver") return <ApproverPanel />;
     return (
-      <Card>
-        <CardContent>
-          <Typography>Unsupported role.</Typography>
-        </CardContent>
-      </Card>
+      <div className="rounded-2xl border border-[#ded9cb] bg-white p-4 text-sm text-[#211f1a]">Unsupported role.</div>
     );
   })();
 
   return (
-    <Box sx={{ minHeight: "100vh", pb: 9 }}>
-      <Box sx={{ display: "flex" }}>
+    <div className="min-h-screen pb-9">
+      <div className="flex">
         <HoverSidebar
           items={menu}
           activeKey={active}
@@ -101,7 +92,7 @@ export default function DashboardPage() {
           onMobileClose={() => setMobileOpen(false)}
         />
 
-        <Box sx={{ flexGrow: 1 }}>
+        <div className="min-w-0 flex-1">
           <AppHeader
             title="Role-Based Dashboard"
             subtitle="Secure product marketplace operations"
@@ -110,11 +101,11 @@ export default function DashboardPage() {
             onLogout={handleLogout}
           />
 
-          <Box sx={{ p: { xs: 1.5, sm: 2.5 } }}>{content}</Box>
-        </Box>
-      </Box>
+          <div className="p-2 sm:p-4">{content}</div>
+        </div>
+      </div>
 
       <AppFooter />
-    </Box>
+    </div>
   );
 }

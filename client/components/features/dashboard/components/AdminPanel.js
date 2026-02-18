@@ -1,21 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Divider,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
 import { useState } from "react";
 
 import MetricCards from "@/components/features/dashboard/components/MetricCards";
 import ProductManagerPanel from "@/components/features/dashboard/components/ProductManagerPanel";
 import UserManagementPanel from "@/components/features/dashboard/components/UserManagementPanel";
+import Modal from "@/components/ui/Modal";
 import { useNotify } from "@/hooks/useNotify";
 import { adminService } from "@/lib/services/admin.service";
 
@@ -48,7 +39,7 @@ export default function AdminPanel({ section = "overview" }) {
   const stats = statsQuery.data || {};
 
   return (
-    <Stack spacing={2.5}>
+    <div className="space-y-4">
       {(section === "overview" || section === "businesses") && (
         <MetricCards
           items={[
@@ -63,74 +54,84 @@ export default function AdminPanel({ section = "overview" }) {
         />
       )}
 
-      {section === "businesses" && (
-        <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider" }}>
-          <CardContent>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="h6">Business Management</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Create Business Owner accounts and expand marketplace coverage.
-                </Typography>
-              </Box>
-              <Button variant="contained" onClick={() => setOpen(true)}>
-                Create Business Owner
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
-      )}
-
-      {(section === "products" || section === "overview") && (
-        <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider" }}>
-          <CardContent>
-            <ProductManagerPanel mode="admin" />
-          </CardContent>
-        </Card>
-      )}
-
-      {section === "users" && (
-        <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider" }}>
-          <CardContent>
-            <UserManagementPanel mode="admin" />
-          </CardContent>
-        </Card>
-      )}
-
-      {open ? (
-        <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider" }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
+      {section === "businesses" ? (
+        <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="m-0 text-xl font-semibold text-[#211f1a]">Business Management</h2>
+              <p className="m-0 mt-1 text-sm text-[#6f6c63]">
+                Create Business Owner accounts and expand marketplace coverage.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47]"
+            >
               Create Business Owner
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Stack spacing={2}>
-              <TextField
-                label="Business Name"
-                value={form.business_name}
-                onChange={(e) => setForm((prev) => ({ ...prev, business_name: e.target.value }))}
-              />
-              <TextField
-                label="Owner Email"
-                value={form.owner_email}
-                onChange={(e) => setForm((prev) => ({ ...prev, owner_email: e.target.value }))}
-              />
-              <TextField
-                label="Owner Password"
-                type="password"
-                value={form.owner_password}
-                onChange={(e) => setForm((prev) => ({ ...prev, owner_password: e.target.value }))}
-              />
-              <Stack direction="row" spacing={1} justifyContent="flex-end">
-                <Button onClick={() => setOpen(false)}>Cancel</Button>
-                <Button variant="contained" onClick={onCreateOwner} disabled={createOwner.isPending}>
-                  Create
-                </Button>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
+            </button>
+          </div>
+        </section>
       ) : null}
-    </Stack>
+
+      {section === "products" || section === "overview" ? (
+        <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
+          <ProductManagerPanel mode="admin" />
+        </section>
+      ) : null}
+
+      {section === "users" ? (
+        <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
+          <UserManagementPanel mode="admin" />
+        </section>
+      ) : null}
+
+      <Modal open={open} onClose={() => setOpen(false)} title="Create Business Owner">
+        <div className="space-y-3">
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#211f1a]">Business Name</span>
+            <input
+              value={form.business_name}
+              onChange={(e) => setForm((prev) => ({ ...prev, business_name: e.target.value }))}
+              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#211f1a]">Owner Email</span>
+            <input
+              value={form.owner_email}
+              onChange={(e) => setForm((prev) => ({ ...prev, owner_email: e.target.value }))}
+              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#211f1a]">Owner Password</span>
+            <input
+              type="password"
+              value={form.owner_password}
+              onChange={(e) => setForm((prev) => ({ ...prev, owner_password: e.target.value }))}
+              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
+            />
+          </label>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="rounded-lg border border-[#d6d0be] px-3 py-1.5 text-sm hover:bg-[#f1eee2]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onCreateOwner}
+              disabled={createOwner.isPending}
+              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47] disabled:opacity-60"
+            >
+              Create
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
   );
 }

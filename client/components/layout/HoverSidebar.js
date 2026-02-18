@@ -2,60 +2,87 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import {
-  Box,
-  Drawer,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
 
 const COLLAPSED_WIDTH = 76;
 const EXPANDED_WIDTH = 250;
 
 function SidebarContent({ items, activeKey, expanded, onSelect }) {
   return (
-    <Stack sx={{ height: "100%", pt: 2 }}>
-      <Typography sx={{ px: 2, pb: 1, fontSize: 12, textTransform: "uppercase", color: "text.secondary" }}>
-        {expanded ? "Navigation" : ""}
-      </Typography>
-      <List sx={{ px: 1 }}>
+    <div className="flex h-full flex-col pt-4">
+      <div className="overflow-hidden whitespace-nowrap px-4 pb-2 text-xs uppercase text-[#6f6c63]">
+        <span
+          aria-hidden={!expanded}
+          className={`inline-block transition-all duration-300 ease-out content-center text-2xl text-[#176c55] font-bold ${
+            expanded ? "max-w-30 translate-x-0 opacity-100" : "max-w-0 -translate-x-1 opacity-0"
+
+          }`}
+        >
+          Marketplace
+        </span>
+      </div>
+
+      <ul className="m-0 list-none px-2">
         {items.map((item) => {
           const Icon = item.icon;
           const selected = activeKey === item.key;
+
           return (
-            <Tooltip key={item.key} title={expanded ? "" : item.label} placement="right">
-              <ListItemButton
-                selected={selected}
+            <li key={item.key}>
+              <button
+                type="button"
                 onClick={() => onSelect(item.key)}
-                sx={{
-                  borderRadius: 2,
-                  minHeight: 44,
-                  mb: 0.5,
-                  justifyContent: expanded ? "initial" : "center",
-                  px: expanded ? 1.5 : 1,
-                }}
+                aria-current={selected ? "page" : undefined}
+                className={`mb-1 flex min-h-11 w-full items-center rounded-xl border-0 bg-transparent text-[#211f1a] transition-all duration-300 ${
+                  expanded ? "justify-start px-3" : "justify-center px-2"
+                } ${selected ? "bg-[#176c55] text-white" : "hover:bg-[#176c55] hover:text-white"}`}
+                
               >
-                <ListItemIcon sx={{ minWidth: expanded ? 38 : "auto" }}>
+                <span
+                  className={`inline-flex items-center justify-center transition-[min-width] duration-300 ${
+                    expanded ? "min-w-9.5" : "min-w-0"
+                  }`}
+                >
                   <Icon fontSize="small" />
-                </ListItemIcon>
-                {expanded ? <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: 14 }} /> : null}
-              </ListItemButton>
-            </Tooltip>
+                </span>
+                <span
+                  className={`overflow-hidden whitespace-nowrap text-left text-sm leading-5 transition-all duration-300 ${
+                    expanded
+                      ? "ml-0 max-w-45 translate-x-0 opacity-100"
+                      : "-ml-0.5 max-w-0 -translate-x-1.5 opacity-0"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </button>
+            </li>
           );
         })}
-      </List>
+      </ul>
 
-      <Box sx={{ mt: "auto", p: 1.5 }}>
-        <ListItemButton component={Link} href="/" sx={{ borderRadius: 2, justifyContent: expanded ? "initial" : "center" }}>
-          <ListItemText primary={expanded ? "Public Listing" : "P"} primaryTypographyProps={{ fontSize: 13 }} />
-        </ListItemButton>
-      </Box>
-    </Stack>
+      <div className="mt-auto p-3">
+        <Link
+          href="/"
+          className={`flex min-h-11 items-center rounded-xl px-2 text-[#211f1a] no-underline transition-all duration-300 hover:bg-[#f1eee2] ${
+            expanded ? "justify-start px-3" : "justify-center"
+          }`}
+        >
+          <span
+            className={`overflow-hidden whitespace-nowrap text-[13px] transition-all duration-300 ${
+              expanded ? "max-w-[160px] opacity-100" : "max-w-0 opacity-0"
+            }`}
+          >
+            Public Listing
+          </span>
+          <span
+            className={`overflow-hidden text-[13px] leading-none transition-all duration-300 ${
+              expanded ? "w-0 opacity-0" : "w-auto opacity-100"
+            }`}
+          >
+            P
+          </span>
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -64,33 +91,55 @@ export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, o
 
   return (
     <>
-      <Box
-        sx={{
-          display: { xs: "none", md: "block" },
+      <aside
+        className="sticky top-0 z-[1200] hidden h-screen border-r border-[#ded9cb] bg-[#fffef9] md:block"
+        style={{
           width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
-          transition: "width .4s ease",
-          borderRight: "1px solid",
-          borderColor: "divider",
-          bgcolor: "background.paper",
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-          zIndex: 1200,
+          transition: "width 320ms cubic-bezier(0.4, 0, 0.2, 1)",
         }}
         onMouseEnter={() => setExpanded(true)}
         onMouseLeave={() => setExpanded(false)}
       >
         <SidebarContent items={items} activeKey={activeKey} expanded={expanded} onSelect={onSelect} />
-      </Box>
+      </aside>
 
-      <Drawer open={mobileOpen} onClose={onMobileClose} sx={{ display: { md: "none" } }}>
-        <Box sx={{ width: EXPANDED_WIDTH }}>
-          <SidebarContent items={items} activeKey={activeKey} expanded onSelect={(key) => {
-            onSelect(key);
-            onMobileClose();
-          }} />
-        </Box>
-      </Drawer>
+      {mobileOpen ? (
+        <div
+          className="fixed inset-0 z-[1300] flex bg-black/35 md:hidden"
+          onClick={onMobileClose}
+          role="button"
+          tabIndex={-1}
+        >
+          <aside
+            className="h-full w-[250px] border-r border-[#ded9cb] bg-[#fffef9]"
+            style={{ animation: "sidebar-slide-in 220ms ease" }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <SidebarContent
+              items={items}
+              activeKey={activeKey}
+              expanded
+              onSelect={(key) => {
+                onSelect(key);
+                onMobileClose();
+              }}
+            />
+          </aside>
+        </div>
+      ) : null}
+
+      <style jsx>{`
+        @keyframes sidebar-slide-in {
+          from {
+            transform: translateX(-12px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </>
   );
 }

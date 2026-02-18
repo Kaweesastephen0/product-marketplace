@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/auth-cookies";
 
-export default function middleware(request) {
+export default function proxy(request) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/dashboard")) {

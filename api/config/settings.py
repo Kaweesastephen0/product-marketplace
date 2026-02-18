@@ -137,7 +137,7 @@ SIMPLE_JWT = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Product Marketplace API",
-    "DESCRIPTION": "Multi-tenant product marketplace backend",
+    "DESCRIPTION": "Product marketplace backend",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }

@@ -1,23 +1,19 @@
 "use client";
 
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
-
 export default function DashboardError({ error, reset }) {
   return (
-    <Box sx={{ p: 3 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Dashboard error
-          </Typography>
-          <Typography variant="body2" color="text.secondary" mb={2}>
-            {error?.message || "Unable to load dashboard"}
-          </Typography>
-          <Button onClick={reset} variant="contained">
-            Retry
-          </Button>
-        </CardContent>
-      </Card>
-    </Box>
+    <div className="p-4 sm:p-6">
+      <div className="rounded-2xl border border-[#ded9cb] bg-white p-5 shadow-sm">
+        <h2 className="m-0 mb-2 text-lg font-semibold text-[#211f1a]">Dashboard error</h2>
+        <p className="m-0 mb-4 text-sm text-[#6f6c63]">{error?.message || "Unable to load dashboard"}</p>
+        <button
+          type="button"
+          onClick={reset}
+          className="rounded-lg bg-[#176c55] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#135a47]"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
   );
 }

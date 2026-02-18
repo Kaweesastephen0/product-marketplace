@@ -1,27 +1,30 @@
 "use client";
 
-import { Box, Typography } from "@mui/material";
-
 export default function AppFooter({ compact = false }) {
   return (
-    <Box
-      component="footer"
-      sx={{
+    <footer
+      style={{
         position: "fixed",
         bottom: 0,
         left: 0,
         right: 0,
-        borderTop: "1px solid",
-        borderColor: "divider",
-        bgcolor: "background.paper",
-        py: compact ? 1 : 1.2,
-        px: 2,
+        borderTop: "1px solid #ded9cb",
+        background: "#fffef9",
+        padding: compact ? "8px 16px" : "10px 16px",
         zIndex: 1200,
       }}
     >
-      <Typography variant="caption" color="text.secondary" align="center" display="block">
-        copyRight &copy;  {new Date().getFullYear() } Product Marketplace Platform 
-      </Typography>
-    </Box>
+      <p
+        style={{
+          margin: 0,
+          textAlign: "center",
+          color: "#6f6c63",
+          fontSize: 12,
+          lineHeight: 1.4,
+        }}
+      >
+        CopyRight &copy; {new Date().getFullYear()} - Product Marketplace Platform
+      </p>
+    </footer>
   );
 }

@@ -1,26 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  Pagination,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from "@mui/material";
+import { useState } from "react";
 
+import Modal from "@/components/ui/Modal";
 import { useProductsQuery } from "@/components/features/products/hooks/useProductsQuery";
 import { useProductMutations } from "@/components/features/products/hooks/useProductMutations";
 import { useNotify } from "@/hooks/useNotify";
@@ -38,11 +20,12 @@ export default function ProductManagerPanel({ mode }) {
   const productsQuery = useProductsQuery({ page, status });
   const mutations = useProductMutations({ page, status });
 
-  const canCreate = mode === "admin" || mode === "owner" || mode === "editor";
-  const canEdit = canCreate;
+  const canCreate = mode === "owner" || mode === "editor";
+  const canEdit = mode === "editor";
   const canSubmit = canCreate;
   const canDelete = mode === "admin";
-  const canApprove = mode === "admin" || mode === "approver";
+  const canApprove = mode === "approver";
+  const showSubmittedBy = mode === "admin";
 
   const rows = productsQuery.data?.results || [];
   const totalCount = productsQuery.data?.count || 0;
@@ -128,147 +111,208 @@ export default function ProductManagerPanel({ mode }) {
     }
   };
 
-  const statusColor = useMemo(
-    () => ({ draft: "default", pending_approval: "warning", approved: "success" }),
-    [],
-  );
-
   return (
-    <Box>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} justifyContent="space-between" mb={2}>
-        <Typography variant="h6">Product Management</Typography>
-        <Stack direction="row" spacing={1}>
-          <ToggleButtonGroup
-            size="small"
-            value={status}
-            exclusive
-            onChange={(_event, value) => {
-              setStatus(value ?? "");
-              setPage(1);
-            }}
-          >
-            <ToggleButton value="">All</ToggleButton>
-            <ToggleButton value="draft">Draft</ToggleButton>
-            <ToggleButton value="pending_approval">Pending</ToggleButton>
-            <ToggleButton value="approved">Approved</ToggleButton>
-          </ToggleButtonGroup>
-
-          {canCreate ? (
-            <Button variant="contained" onClick={openCreate}>
-              Create Product
-            </Button>
-          ) : null}
-        </Stack>
-      </Stack>
-
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id} hover>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>
-                <Chip size="small" label={row.status} color={statusColor[row.status] || "default"} />
-              </TableCell>
-              <TableCell>${Number(row.price).toFixed(2)}</TableCell>
-              <TableCell align="right">
-                <Stack direction="row" spacing={1} justifyContent="flex-end">
-                  {canEdit ? (
-                    <Button size="small" variant="outlined" onClick={() => openEdit(row)} disabled={!row?.id}>
-                      Edit
-                    </Button>
-                  ) : null}
-                  {canSubmit ? (
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => submitForApproval(row.id)}
-                      disabled={!row?.id || row.status !== "draft"}
-                    >
-                      Submit
-                    </Button>
-                  ) : null}
-                  {canApprove ? (
-                    <Button
-                      size="small"
-                      color="success"
-                      variant="outlined"
-                      onClick={() => approveProduct(row.id)}
-                      disabled={!row?.id}
-                    >
-                      Approve
-                    </Button>
-                  ) : null}
-                  {canDelete ? (
-                    <Button size="small" color="error" variant="outlined" onClick={() => deleteProduct(row.id)} disabled={!row?.id}>
-                      Delete
-                    </Button>
-                  ) : null}
-                </Stack>
-              </TableCell>
-            </TableRow>
+    <div>
+      <div className="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+        <h2 className="m-0 text-xl font-semibold text-[#211f1a]">Product Management</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            { label: "All", value: "" },
+            { label: "Draft", value: "draft" },
+            { label: "Pending", value: "pending_approval" },
+            { label: "Approved", value: "approved" },
+          ].map((option) => (
+            <button
+              key={option.value || "all"}
+              type="button"
+              onClick={() => {
+                setStatus(option.value);
+                setPage(1);
+              }}
+              className={`rounded-lg border px-2.5 py-1 text-xs font-medium ${
+                status === option.value
+                  ? "border-[#0f5132] bg-[#0f5132] text-white"
+                  : "border-[#d6d0be] text-[#211f1a] hover:bg-[#f1eee2]"
+              }`}
+            >
+              {option.label}
+            </button>
           ))}
 
-          {!rows.length && !productsQuery.isLoading ? (
-            <TableRow>
-              <TableCell colSpan={4} align="center">
-                No products available.
-              </TableCell>
-            </TableRow>
+          {canCreate ? (
+            <button
+              type="button"
+              onClick={openCreate}
+              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47]"
+            >
+              Create Product
+            </button>
           ) : null}
-        </TableBody>
-      </Table>
+        </div>
+      </div>
 
-      <Stack alignItems="center" mt={2}>
-        <Pagination page={page} onChange={(_e, value) => setPage(value)} count={pages} color="primary" />
-      </Stack>
+      <div className="overflow-x-auto rounded-xl border border-[#e3decf]">
+        <table className="min-w-full border-collapse text-sm">
+          <thead className="bg-[#f5f2e8] text-left text-[#4c493f]">
+            <tr>
+              <th className="px-3 py-2 font-medium">Name</th>
+              <th className="px-3 py-2 font-medium">Status</th>
+              <th className="px-3 py-2 font-medium">Price</th>
+              {showSubmittedBy ? <th className="px-3 py-2 font-medium">Submitted By</th> : null}
+              <th className="px-3 py-2 text-right font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.id} className="border-t border-[#efe9d7]">
+                <td className="px-3 py-2">{row.name}</td>
+                <td className="px-3 py-2">
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs ${
+                      row.status === "approved"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : row.status === "pending_approval"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-slate-200 text-slate-700"
+                    }`}
+                  >
+                    {row.status}
+                  </span>
+                </td>
+                <td className="px-3 py-2">${Number(row.price).toFixed(2)}</td>
+                {showSubmittedBy ? <td className="px-3 py-2">{row.created_by_email || "-"}</td> : null}
+                <td className="px-3 py-2">
+                  <div className="flex flex-wrap justify-end gap-1.5">
+                    {canEdit ? (
+                      <button
+                        type="button"
+                        onClick={() => openEdit(row)}
+                        disabled={!row?.id}
+                        className="rounded-lg border border-[#d6d0be] px-2.5 py-1 text-xs hover:bg-[#f1eee2] disabled:opacity-60"
+                      >
+                        Edit
+                      </button>
+                    ) : null}
+                    {canSubmit ? (
+                      <button
+                        type="button"
+                        onClick={() => submitForApproval(row.id)}
+                        disabled={!row?.id || row.status !== "draft"}
+                        className="rounded-lg border border-[#d6d0be] px-2.5 py-1 text-xs hover:bg-[#f1eee2] disabled:opacity-60"
+                      >
+                        Submit
+                      </button>
+                    ) : null}
+                    {canApprove ? (
+                      <button
+                        type="button"
+                        onClick={() => approveProduct(row.id)}
+                        disabled={!row?.id}
+                        className="rounded-lg border border-emerald-500 px-2.5 py-1 text-xs text-emerald-700 hover:bg-emerald-50 disabled:opacity-60"
+                      >
+                        Approve
+                      </button>
+                    ) : null}
+                    {canDelete ? (
+                      <button
+                        type="button"
+                        onClick={() => deleteProduct(row.id)}
+                        disabled={!row?.id}
+                        className="rounded-lg border border-rose-500 px-2.5 py-1 text-xs text-rose-700 hover:bg-rose-50 disabled:opacity-60"
+                      >
+                        Delete
+                      </button>
+                    ) : null}
+                  </div>
+                </td>
+              </tr>
+            ))}
 
-      {dialogOpen ? (
-        <Card sx={{ mt: 2, border: "1px solid", borderColor: "divider" }} elevation={0}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              {editing ? "Edit Product" : "Create Product"}
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Stack spacing={2}>
-            <TextField
-              label="Name"
+            {!rows.length && !productsQuery.isLoading ? (
+              <tr className="border-t border-[#efe9d7]">
+                <td colSpan={showSubmittedBy ? 5 : 4} className="px-3 py-4 text-center text-[#6f6c63]">
+                  No products available.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-3 flex items-center justify-center gap-2 text-sm">
+        <button
+          type="button"
+          onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          disabled={page <= 1}
+          className="rounded-lg border border-[#d6d0be] px-3 py-1 hover:bg-[#f1eee2] disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <span className="text-[#6f6c63]">
+          {page} / {pages}
+        </span>
+        <button
+          type="button"
+          onClick={() => setPage((prev) => Math.min(pages, prev + 1))}
+          disabled={page >= pages}
+          className="rounded-lg border border-[#d6d0be] px-3 py-1 hover:bg-[#f1eee2] disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
+      <Modal
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editing ? "Edit Product" : "Create Product"}
+        maxWidthClass="max-w-xl"
+      >
+        <div className="space-y-3">
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#211f1a]">Name</span>
+            <input
               value={form.name}
               onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-              fullWidth
+              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
             />
-            <TextField
-              label="Description"
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#211f1a]">Description</span>
+            <textarea
               value={form.description}
               onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-              fullWidth
-              multiline
-              minRows={3}
+              rows={3}
+              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
             />
-            <TextField
-              label="Price"
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#211f1a]">Price</span>
+            <input
+              type="number"
               value={form.price}
               onChange={(e) => setForm((prev) => ({ ...prev, price: e.target.value }))}
-              fullWidth
-              type="number"
+              className="w-full rounded-lg border border-[#d6d0be] px-3 py-2 text-sm outline-none ring-[#176c55] focus:ring-2"
             />
-              <Stack direction="row" spacing={1} justifyContent="flex-end">
-                <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button onClick={onSave} variant="contained" disabled={loading}>
-                  Save
-                </Button>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      ) : null}
-    </Box>
+          </label>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setDialogOpen(false)}
+              className="rounded-lg border border-[#d6d0be] px-3 py-1.5 text-sm hover:bg-[#f1eee2]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={loading}
+              className="rounded-lg bg-[#176c55] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#135a47] disabled:opacity-60"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
   );
 }
