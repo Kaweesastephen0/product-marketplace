@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from accounts.constants import OWNER_MANAGED_ROLES, Roles
+from accounts.models import AuditLog
 from businesses.models import Business
 
 User = get_user_model()
@@ -25,6 +26,26 @@ class UserReadSerializer(serializers.ModelSerializer):
             "date_joined",
             "business_id",
             "business_name",
+        )
+        read_only_fields = fields
+
+
+class AuditLogReadSerializer(serializers.ModelSerializer):
+    actor_email = serializers.EmailField(source="actor.email", read_only=True)
+    business_name = serializers.CharField(source="business.name", read_only=True)
+
+    class Meta:
+        model = AuditLog
+        fields = (
+            "id",
+            "action",
+            "actor_email",
+            "business_id",
+            "business_name",
+            "target_type",
+            "target_id",
+            "metadata",
+            "created_at",
         )
         read_only_fields = fields
 
@@ -90,9 +111,13 @@ class SelfProfileUpdateSerializer(serializers.Serializer):
 class ViewerRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
-    business_id = serializers.IntegerField()
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    business_id = serializers.IntegerField(required=False, allow_null=True)
 
     def validate_business_id(self, value):
+        if value is None:
+            return value
         if not Business.objects.filter(id=value).exists():
             raise serializers.ValidationError("Business does not exist.")
         return value

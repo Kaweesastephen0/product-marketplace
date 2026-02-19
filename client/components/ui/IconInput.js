@@ -9,6 +9,8 @@ export default function IconInput({
   icon: Icon,
   type = "text",
   as = "input",
+  iconFontSize = "small",
+  toggleIconFontSize = "small",
   className = "",
   ...props
 }) {
@@ -29,7 +31,7 @@ export default function IconInput({
     <div className="relative">
       {Icon ? (
         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#6f6c63]">
-          <Icon fontSize="small" />
+          <Icon fontSize={iconFontSize} />
         </span>
       ) : null}
 
@@ -46,7 +48,11 @@ export default function IconInput({
           className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-[#6f6c63] hover:bg-[#f1eee2]"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
-          {showPassword ? <VisibilityOffOutlined fontSize="small" /> : <VisibilityOutlined fontSize="small" />}
+          {showPassword ? (
+            <VisibilityOffOutlined fontSize={toggleIconFontSize} />
+          ) : (
+            <VisibilityOutlined fontSize={toggleIconFontSize} />
+          )}
         </button>
       ) : null}
     </div>

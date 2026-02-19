@@ -26,9 +26,9 @@ export default function MetricCards({ items }) {
         return (
           <article key={item.label} className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
             <div className="flex items-start justify-between gap-3">
-              <p className="m-0 text-xs text-[#6f6c63]">{item.label}</p>
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#f1eee2] text-[#176c55]">
-                <Icon fontSize="small" />
+              <p className="m-0 text-xl text-[#6f6c63]">{item.label}</p>
+              <span className="inline-flex h-20 w-20 items-center justify-center rounded-lg bg-[#f1eee2] text-[#176c55]">
+                <Icon fontSize="large" />
               </span>
             </div>
             <p className="m-0 mt-1 text-2xl font-bold text-[#211f1a]">{item.value}</p>

@@ -7,6 +7,9 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from accounts.api.views import (
+    AdminAuditLogClearAPIView,
+    AdminAuditLogDetailAPIView,
+    AdminAuditLogListAPIView,
     BusinessUserDetailAPIView,
     BusinessUsersAPIView,
     CustomTokenObtainPairView,
@@ -35,6 +38,9 @@ urlpatterns = [
     path("api/register/", ViewerRegistrationAPIView.as_view(), name="viewer_register"),
     path("api/create-business-owner/", CreateBusinessOwnerAPIView.as_view(), name="create_business_owner"),
     path("api/admin/statistics/", AdminStatisticsAPIView.as_view(), name="admin_statistics"),
+    path("api/admin/audit-logs/", AdminAuditLogListAPIView.as_view(), name="admin_audit_logs"),
+    path("api/admin/audit-logs/clear/", AdminAuditLogClearAPIView.as_view(), name="admin_audit_logs_clear"),
+    path("api/admin/audit-logs/<int:pk>/", AdminAuditLogDetailAPIView.as_view(), name="admin_audit_log_detail"),
     path("api/business/statistics/", BusinessStatisticsAPIView.as_view(), name="business_statistics"),
     path("api/businesses/", BusinessListAPIView.as_view(), name="business_list"),
     path("api/businesses/<int:pk>/", BusinessDetailAPIView.as_view(), name="business_detail"),

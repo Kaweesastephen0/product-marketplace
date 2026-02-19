@@ -9,9 +9,10 @@ import PersonOutlined from "@mui/icons-material/PersonOutlined";
 import BadgeOutlined from "@mui/icons-material/BadgeOutlined";
 import { useEffect, useState } from "react";
 
-import MetricCards from "@/components/features/dashboard//MetricCards";
-import ProductManagerPanel from "@/components/features/dashboard/ProductManagerPanel";
-import UserManagementPanel from "@/components/features/dashboard/UserManagementPanel";
+import MetricCards from "@/components/dashboard//MetricCards";
+import ProductManagerPanel from "@/components/dashboard/ProductManagerPanel";
+import UserManagementPanel from "@/components/dashboard/UserManagementPanel";
+import AuditLogsPanel from "@/components/dashboard/AuditLogsPanel";
 import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import IconInput from "@/components/ui/IconInput";
@@ -272,6 +273,12 @@ export default function AdminPanel({ section = "overview" }) {
       {section === "users" ? (
         <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
           <UserManagementPanel mode="admin" />
+        </section>
+      ) : null}
+
+      {section === "audit_logs" ? (
+        <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
+          <AuditLogsPanel />
         </section>
       ) : null}
 

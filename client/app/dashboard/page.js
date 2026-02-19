@@ -2,17 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
 import LockOutlined from "@mui/icons-material/LockOutlined";
 
 import AppFooter from "@/components/layout/AppFooter";
 import AppHeader from "@/components/layout/AppHeader";
 import HoverSidebar from "@/components/layout/HoverSidebar";
-import AdminPanel from "@/components/features/dashboard/AdminPanel";
-import ApproverPanel from "@/components/features/dashboard/ApproverPanel";
-import EditorPanel from "@/components/features/dashboard/EditorPanel";
-import OwnerPanel from "@/components/features/dashboard/OwnerPanel";
+import AdminPanel from "@/components/dashboard/AdminPanel";
+import ApproverPanel from "@/components/dashboard/ApproverPanel";
+import EditorPanel from "@/components/dashboard/EditorPanel";
+import OwnerPanel from "@/components/dashboard/OwnerPanel";
 import IconInput from "@/components/ui/IconInput";
 import Modal from "@/components/ui/Modal";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,6 +29,7 @@ function selectDefaultSection(role) {
 export default function DashboardPage() {
   const router = useRouter();
   const notify = useNotify();
+  const queryClient = useQueryClient();
   const { user, isLoading, isAuthenticated, clearAuthCache, refetchMe } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -85,6 +86,8 @@ export default function DashboardPage() {
       notify.warning("Session cleared");
     } finally {
       clearAuthCache();
+      queryClient.clear();
+      router.refresh();
       router.replace("/");
     }
   };

@@ -206,12 +206,14 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
-    def self_register_viewer(*, email, password, business):
+    def self_register_viewer(*, email, password, first_name="", last_name="", business=None):
         user = User.objects.create_user(
             email=email,
             password=password,
             role=Roles.VIEWER,
             business=business,
+            first_name=first_name,
+            last_name=last_name,
         )
         AuditService.log(
             action="viewer_registered",
