@@ -7,7 +7,7 @@ function parseId(value) {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-// Handles PATCH requests for this route and forwards them to backend.
+// Handles PATCH requests for updating products and forwards them to backend.
 export async function PATCH(request, { params }) {
   const { id: rawId } = await params;
   const id = parseId(rawId);

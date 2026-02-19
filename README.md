@@ -1,217 +1,116 @@
 # Product Marketplace
 
-Monorepo with:
-- `client/`: Next.js frontend (App Router + React Query)
-- `api/`: Django REST API backend
+Full-stack role-based product marketplace built with:
+## Backend: 
+    Django + Django REST Framework
+## Frontend: 
+    Next.js (App Router) + React + MUI + Tailwind
 
-This README focuses on **what each source file/folder does**.
-It excludes generated/vendor files (`node_modules`, `.next`, `.venv`, `__pycache__`, local DB/cache files).
-
-## Root Files
-- `README.md`: Project guide and file map.
-- `LICENSE`: License text.
-- `.gitignore`: Git ignore rules.
-- `.gitattributes`: Git attributes.
-
-## Frontend (`client/`)
-
-### Frontend Config
-- `client/package.json`: Frontend scripts and dependencies.
-- `client/package-lock.json`: Locked npm dependency tree.
-- `client/next.config.mjs`: Next.js config (including remote image hosts).
-- `client/jsconfig.json`: Path alias config (`@/*`).
-- `client/postcss.config.mjs`: PostCSS setup.
-- `client/tailwind.config.js`: Tailwind theme/content config.
-- `client/proxy.js`: Local proxy helper script.
-- `client/.env.example`: Example frontend environment variables.
-- `client/.env.local`: Local frontend env values.
-
-### App Router Pages
-- `client/app/layout.js`: Root HTML layout and metadata; wraps app with providers.
-- `client/app/globals.css`: Global styles.
-- `client/app/page.js`: Public landing/products page.
-- `client/app/loading.js`: Global loading UI.
-- `client/app/error.js`: Global error boundary UI.
-- `client/app/dashboard/page.js`: Main dashboard shell (header/sidebar/panels/logout/profile).
-- `client/app/dashboard/loading.js`: Dashboard loading UI.
-- `client/app/dashboard/error.js`: Dashboard error boundary UI.
-
-### Next API Routes (frontend server-to-backend proxy layer)
-- `client/app/api/auth/login/route.js`: Login proxy; sets auth cookies.
-- `client/app/api/auth/logout/route.js`: Logout proxy; clears auth cookies.
-- `client/app/api/auth/me/route.js`: Authenticated profile proxy.
-- `client/app/api/register/route.js`: Public viewer registration proxy.
-- `client/app/api/public/products/route.js`: Public products proxy.
-- `client/app/api/products/route.js`: Product list/create proxy.
-- `client/app/api/products/[id]/route.js`: Product update/delete proxy.
-- `client/app/api/products/[id]/submit/route.js`: Submit-for-approval proxy.
-- `client/app/api/products/[id]/approve/route.js`: Approve product proxy.
-- `client/app/api/products/[id]/reject/route.js`: Reject product proxy.
-- `client/app/api/users/route.js`: User list/create proxy.
-- `client/app/api/users/[id]/route.js`: User update/delete proxy.
-- `client/app/api/business/statistics/route.js`: Business stats proxy.
-- `client/app/api/admin/statistics/route.js`: Admin stats proxy.
-- `client/app/api/admin/audit-logs/route.js`: Audit log list/clear proxy.
-- `client/app/api/admin/audit-logs/[id]/route.js`: Single audit log delete proxy.
-- `client/app/api/businesses/route.js`: Business list proxy.
-- `client/app/api/businesses/[id]/route.js`: Business update/delete proxy.
-- `client/app/api/create-business-owner/route.js`: Create business owner proxy.
-
-### UI Components
-- `client/components/providers.js`: Registers Query/Auth/Notify providers.
-
-#### Auth
-- `client/components/auth/AuthModalButtons.js`: Header auth actions + login/register/profile modals.
-
-#### Dashboard Panels
-- `client/components/dashboard/AdminPanel.js`: Admin dashboard (stats, business management).
-- `client/components/dashboard/OwnerPanel.js`: Business owner dashboard.
-- `client/components/dashboard/EditorPanel.js`: Editor dashboard.
-- `client/components/dashboard/ApproverPanel.js`: Approver dashboard.
-- `client/components/dashboard/ApprovalPanel.js`: Product approval workflow table/actions.
-- `client/components/dashboard/ProductManagerPanel.js`: Product CRUD table/form/modals.
-- `client/components/dashboard/UserManagementPanel.js`: User CRUD/suspend/activate UI.
-- `client/components/dashboard/MetricCards.js`: Reusable dashboard metric card grid.
-- `client/components/dashboard/AuditLogsPanel.js`: Admin audit log listing/actions.
-
-#### Layout
-- `client/components/layout/AppHeader.js`: Top bar and actions.
-- `client/components/layout/HoverSidebar.js`: Role-aware sidebar navigation.
-- `client/components/layout/AppFooter.js`: Footer.
-
-#### Product Hooks
-- `client/components/products/useProductsQuery.js`: React Query products list hook.
-- `client/components/products/useProductMutations.js`: Product mutation hooks.
-
-#### Shared UI
-- `client/components/ui/Modal.js`: Generic modal.
-- `client/components/ui/ConfirmDialog.js`: Confirmation dialog.
-- `client/components/ui/IconInput.js`: Input with optional icon/password toggle.
-- `client/components/ui/TablePagination.js`: Table pagination controls.
-
-### Frontend Hooks
-- `client/hooks/useAuth.js`: Auth context, session state, and auth helpers.
-- `client/hooks/useNotify.js`: Notification/toast context and API.
-
-### Frontend Libraries
-- `client/lib/query-client.js`: React Query client defaults.
-- `client/lib/axios.js`: Axios instance for frontend API calls.
-- `client/lib/auth-cookies.js`: Cookie names/options.
-- `client/lib/backend-server.js`: Server-side proxy/auth-refresh helpers.
-- `client/lib/dashboard-refresh.js`: Central dashboard query invalidation helper.
-
-### Frontend Service Layer
-- `client/lib/services/auth.service.js`: Auth API client methods.
-- `client/lib/services/products.service.js`: Product API client methods.
-- `client/lib/services/business.service.js`: Business/user management API methods.
-- `client/lib/services/admin.service.js`: Admin API methods (stats/businesses/audit logs).
-- `client/lib/services/public-products.service.js`: Public products fetch helper.
-
-### Frontend Type/Config Maps
-- `client/types/auth.js`: Permission map by role.
-- `client/types/navigation.js`: Sidebar/menu definitions by role.
-
-### Frontend Public Assets
-- `client/public/marketplace-logo.svg`: Marketplace logo image.
-
-## Backend (`api/`)
-
-### Backend Runtime/Config
-- `api/manage.py`: Django CLI entry point.
-- `api/requirements.txt`: Python dependencies.
-- `api/pytest.ini`: Pytest config.
-- `api/.env`: Local backend env variables.
-- `api/config/settings.py`: Django settings (DB/auth/REST/CORS/cache/media).
-- `api/config/urls.py`: URL routing for auth, users, businesses, products, docs.
-- `api/config/asgi.py`: ASGI app entry point.
-- `api/config/wsgi.py`: WSGI app entry point.
-- `api/config/__init__.py`: Package marker.
-
-### Accounts Domain (`api/accounts/`)
-- `api/accounts/models.py`: Custom `User`, `Role`, and `AuditLog` models.
-- `api/accounts/constants.py`: Role constants and role sets.
-- `api/accounts/services.py`: Account/user business logic and audit logging.
-- `api/accounts/admin.py`: Django admin configuration for accounts models.
-- `api/accounts/apps.py`: Django app config.
-- `api/accounts/tests.py`: App-level test module.
-- `api/accounts/views.py`: Placeholder/default Django app view module.
-- `api/accounts/__init__.py`: Package marker.
-
-#### Accounts API Layer
-- `api/accounts/api/permissions.py`: DRF permission classes for account/admin access.
-- `api/accounts/api/serializers.py`: Request/response serializers for auth/users/audit.
-- `api/accounts/api/views.py`: Auth endpoints, viewer register, users CRUD, audit endpoints.
-- `api/accounts/api/__init__.py`: Package marker.
-
-#### Accounts Migrations
-- `api/accounts/migrations/0001_initial.py`: Initial accounts schema.
-- `api/accounts/migrations/0002_role_auditlog_user_role_fk.py`: Role/AuditLog schema updates.
-- `api/accounts/migrations/0003_rename_accounts_au_busines_50b2d2_idx_accounts_au_busines_704f12_idx_and_more.py`: Index/name adjustments.
-- `api/accounts/migrations/__init__.py`: Migrations package marker.
-
-### Businesses Domain (`api/businesses/`)
-- `api/businesses/models.py`: Business model.
-- `api/businesses/services.py`: Business statistics/service logic.
-- `api/businesses/admin.py`: Business admin configuration.
-- `api/businesses/apps.py`: Django app config.
-- `api/businesses/tests.py`: App-level tests module.
-- `api/businesses/views.py`: Placeholder/default Django app view module.
-- `api/businesses/__init__.py`: Package marker.
-
-#### Businesses API Layer
-- `api/businesses/api/serializers.py`: Business API serializers.
-- `api/businesses/api/views.py`: Admin/business statistics and business CRUD endpoints.
-- `api/businesses/api/__init__.py`: Package marker.
-
-#### Businesses Migrations
-- `api/businesses/migrations/0001_initial.py`: Initial businesses schema.
-- `api/businesses/migrations/0002_business_owner.py`: Adds owner relationship.
-- `api/businesses/migrations/__init__.py`: Migrations package marker.
-
-### Products Domain (`api/products/`)
-- `api/products/models.py`: Product model and status workflow fields.
-- `api/products/services.py`: Product lifecycle logic (create/update/submit/approve/reject/delete).
-- `api/products/admin.py`: Product admin configuration.
-- `api/products/apps.py`: Django app config.
-- `api/products/__init__.py`: Package marker.
-
-#### Products API Layer
-- `api/products/api/filters.py`: Product filtering definitions.
-- `api/products/api/permissions.py`: Product action permissions by role.
-- `api/products/api/serializers.py`: Product read/write/public serializers.
-- `api/products/api/views.py`: Product viewsets (internal and public).
-- `api/products/api/__init__.py`: Package marker.
-
-#### Products Migrations
-- `api/products/migrations/0001_initial.py`: Initial products schema.
-- `api/products/migrations/0002_rename_products_pro_busines_8e96b8_idx_products_pr_busines_585b98_idx_and_more.py`: Index/name adjustments.
-- `api/products/migrations/0003_product_image_product_image_url.py`: Image and image URL fields.
-- `api/products/migrations/0004_product_rejection_reason_alter_product_status.py`: Rejection reason and status updates.
-- `api/products/migrations/__init__.py`: Migrations package marker.
-
-### Backend Tests (`api/tests/`)
-- `api/tests/test_api.py`: API integration/behavior tests.
-- `api/tests/factories/user.py`: User test factory.
-- `api/tests/factories/business.py`: Business test factory.
-- `api/tests/factories/product.py`: Product test factory.
-- `api/tests/factories/__init__.py`: Factories package marker.
-- `api/tests/__init__.py`: Tests package marker.
-
-## Quick Run
+## What Was Implemented
 
 ### Backend
-1. `cd api`
-2. `python3 -m venv .venv && source .venv/bin/activate`
-3. `pip install -r requirements.txt`
-4. `python manage.py migrate`
-5. `python manage.py runserver`
+ 1. Custom user model with role-based access control.
+ 2. Roles: `admin`, `business_owner`, `editor`, `approver`, `viewer`.
+ 3. Strict multi-tenant business scoping for users and products.
+ 4. JWT auth with SimpleJWT (`login`, `refresh`, `logout`) and session auth for Django admin.
+ 5. Product workflow with status rules:
+   `draft` -> `pending_approval` -> `approved` or `rejected`
+ 6. Public products endpoint that returns approved products only.
+ 7. Admin and business statistics endpoints.
+ 8. Audit logging model and admin audit-log API endpoints.
+ 9. DRF permissions for view-level and object-level authorization.
+ 10. Filtering, search, ordering, pagination on API list endpoints.
+ 11. Swagger/OpenAPI docs via `drf-spectacular`.
 
 ### Frontend
-1. `cd client`
-2. `npm install`
-3. `npm run dev`
+1. Next.js App Router structure with API route handlers as secure backend proxies.
+2. Cookie-based auth flow (HTTP-only cookies managed by server-side route handlers).
+3. Role-based dashboard rendering and role-based actions.
+4. Product CRUD, submit, approve, reject workflows.
+5. Business user management (create/update/delete) and admin business owner creation flow.
+6. Admin audit logs panel and statistics panels.
+7. Public approved-products page.
+8. React Query for data fetching/caching/mutations.
+9. Global notification/toast provider and loading/error UI states.
+10. Responsive dashboard with header, sidebar, and footer.
 
-## Notes
-- Frontend talks to backend through Next route handlers in `client/app/api/**`.
-- Auth uses HTTP-only cookies and refresh-token fallback in `client/lib/backend-server.js`.
-- Dashboard data refresh behavior is centralized in `client/lib/dashboard-refresh.js`.
+## Tech Decisions And Assumptions
+
+1. JWT is used for API authentication; frontend does not store tokens in `localStorage`.
+2. Next.js route handlers proxy requests to Django to centralize token refresh and cookie handling.
+3. Backend is the source of permissions; frontend only adapts UI.
+4. Business is the primary tenant boundary for non-admin users.
+5. Public product listing is cached at backend level (short-lived cache for approved IDs).
+
+## How to setup and run the project.
+
+### 1 Backend Setup (Django)
+
+```bash
+cd api
+# create a virtual Environment
+python3 -m venv .venv
+
+# activate the environment
+source .venv/bin/activate # For linux
+.venv/scripts/activate #for windows
+
+# install dependencies
+pip install -r requirements.txt
+
+# Export the enviroment variable after creating your mysql database
+export DB_NAME=
+export DB_USER=
+export DB_PASSWORD= 
+export DB_HOST=
+export DB_PORT=
+```
+
+
+## Run migrations and the backend server.
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+
+# Create an admin account
+python manage.py createsuperuser
+
+# Run the backend server
+python manage.py runserver
+```
+
+Backend default URL: `http://127.0.0.1:8000`
+
+### 2. Frontend Setup (Next.js)
+
+```bash
+cd client
+
+# Install frontend dependencies
+npm install
+
+# Create a client/.env.local file for client valiables
+
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+
+# Run frontend:
+
+npm run dev
+```
+
+Frontend default URL: `http://localhost:3000`
+
+
+Open:
+. Frontend app: `http://localhost:3000`
+. API schema: `http://127.0.0.1:8000/api/schema/`
+. Swagger: `http://127.0.0.1:8000/api/docs/swagger/`
+. ReDoc: `http://127.0.0.1:8000/api/docs/redoc/`
+
+
+
+## Known Limitations
+
+1. MySQL must be running if MySQL env vars are set; otherwise startup/migrations will fail.
+

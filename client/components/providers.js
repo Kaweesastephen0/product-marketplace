@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
-
 import { AuthProvider } from "@/hooks/useAuth";
 import { NotifyProvider } from "@/hooks/useNotify";
 import { makeQueryClient } from "@/lib/query-client";
@@ -12,7 +11,7 @@ export default function Providers({ children }) {
   const [queryClient] = useState(() => makeQueryClient());
 
   useEffect(() => {
-    // Handles r interaction.
+    // Handles interaction.
     const handler = () => {
       queryClient.removeQueries({ queryKey: ["me"] });
       if (window.location.pathname.startsWith("/dashboard")) {

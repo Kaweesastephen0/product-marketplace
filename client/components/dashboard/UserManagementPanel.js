@@ -8,7 +8,6 @@ import PersonOutlined from "@mui/icons-material/PersonOutlined";
 import BadgeOutlined from "@mui/icons-material/BadgeOutlined";
 import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
 import { useEffect, useMemo, useState } from "react";
-
 import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import IconInput from "@/components/ui/IconInput";

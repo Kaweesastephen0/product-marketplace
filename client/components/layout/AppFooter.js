@@ -1,6 +1,6 @@
 "use client";
 
-// Renders the application footer links and branding text.
+// Renders the footer 
 export default function AppFooter({ compact = false }) {
   return (
     <footer

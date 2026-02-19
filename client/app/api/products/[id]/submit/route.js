@@ -7,7 +7,7 @@ function parseId(value) {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-// Handles POST requests for this route and forwards them to backend.
+// Handles POST requests for submitting uploaded products and forwards them to backend.
 export async function POST(_request, { params }) {
   const { id: rawId } = await params;
   const id = parseId(rawId);

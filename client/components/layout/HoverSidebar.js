@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
 import StorefrontOutlined from "@mui/icons-material/StorefrontOutlined";

@@ -4,7 +4,12 @@ import Providers from "@/components/providers";
 
 export const metadata = {
   title: "Marketplace",
-  description: "Professional role-based marketplace UI",
+  description: "A role-based marketplace UI",
+  icons: {
+    icon: "/marketplace-logo.svg",
+    shortcut: "/marketplace-logo.svg",
+    apple: "/marketplace-logo.svg",
+  },
 };
 
 export default function RootLayout({ children }) {

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { ACCESS_COOKIE, REFRESH_COOKIE, cookieOptions } from "@/lib/auth-cookies";
 import { backendLogout } from "@/lib/backend-server";
 
-// Handles POST requests for this route and forwards them to backend.
+// Handles POST requests for the logout route and forwards them to backend.
 export async function POST() {
   const cookieStore = await cookies();
   const access = cookieStore.get(ACCESS_COOKIE)?.value;
@@ -15,6 +15,9 @@ export async function POST() {
       await backendLogout(access, refresh);
     } catch {
       // Continue clearing cookies regardless of backend errors.
+      cookies.remove("ACCESS_COOKIE");
+      cookies.remove("REFRESH_COOKIE")
+
     }
   }
 

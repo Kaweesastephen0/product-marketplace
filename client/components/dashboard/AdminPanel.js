@@ -8,7 +8,6 @@ import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import PersonOutlined from "@mui/icons-material/PersonOutlined";
 import BadgeOutlined from "@mui/icons-material/BadgeOutlined";
 import { useEffect, useState } from "react";
-
 import MetricCards from "@/components/dashboard//MetricCards";
 import ProductManagerPanel from "@/components/dashboard/ProductManagerPanel";
 import UserManagementPanel from "@/components/dashboard/UserManagementPanel";
@@ -130,16 +129,26 @@ export default function AdminPanel({ section = "overview" }) {
 
   const stats = statsQuery.data || {};
   const businessesData = businessesQuery.data;
+
+  //Normalize Data to Array
   const rawBusinesses = Array.isArray(businessesData) ? businessesData : businessesData?.results || [];
+  
+  //Detect If Server Pagination Is Used
   const usesServerPagination =
     !Array.isArray(businessesData) && Array.isArray(businessesData?.results) && typeof businessesData?.count === "number";
-  const businessPages = usesServerPagination
+  
+    //Calculate Total Pages
+    const businessPages = usesServerPagination
     ? Math.max(1, Math.ceil((businessesData.count || 0) / PAGE_SIZE))
     : Math.max(1, Math.ceil(rawBusinesses.length / PAGE_SIZE));
-  const businesses = usesServerPagination
+ 
+   // Slice Data for Current Page
+    const businesses = usesServerPagination
     ? rawBusinesses
     : rawBusinesses.slice((businessPage - 1) * PAGE_SIZE, businessPage * PAGE_SIZE);
-  const filteredBusinesses = businesses.filter((business) =>
+  
+    //Filter Businesses (Search Logic)
+    const filteredBusinesses = businesses.filter((business) =>
     [business.name, business.owner_email, business.total_users, business.total_products]
       .filter((value) => value !== null && value !== undefined)
       .join(" ")
@@ -153,6 +162,8 @@ export default function AdminPanel({ section = "overview" }) {
 
   return (
     <div className="space-y-4">
+
+      {/* statistics cards */}
       {(section === "overview" || section === "businesses") && (
         <MetricCards
           items={[
@@ -169,6 +180,8 @@ export default function AdminPanel({ section = "overview" }) {
 
       {section === "businesses" ? (
         <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
+
+          {/* Business Management table header */}
           <div className="mb-4 grid grid-cols-1 items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
             <div>
               <h2 className="m-0 text-xl font-semibold text-[#211f1a]">Business Management</h2>
@@ -196,6 +209,7 @@ export default function AdminPanel({ section = "overview" }) {
             </div>
           </div>
 
+    {/* Business Management Table */}
           <div className="overflow-x-auto rounded-xl border border-[#e3decf]">
             <table className="min-w-full border-collapse text-sm">
               <thead className="bg-[#f5f2e8] text-left text-[#4c493f]">
@@ -264,6 +278,7 @@ export default function AdminPanel({ section = "overview" }) {
         </section>
       ) : null}
 
+   {/* Products page */}
       {section === "products" || section === "overview" ? (
         <section className="rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
           <ProductManagerPanel mode="admin" />
@@ -282,6 +297,7 @@ export default function AdminPanel({ section = "overview" }) {
         </section>
       ) : null}
 
+{/* Create business modal */}
       <Modal open={open} onClose={() => setOpen(false)} title="Create Business Owner">
         <div className="space-y-3">
           <label className="block">
@@ -347,6 +363,7 @@ export default function AdminPanel({ section = "overview" }) {
         </div>
       </Modal>
 
+{/* Edit business modal */}
       <Modal open={editOpen} onClose={() => setEditOpen(false)} title="Edit Business">
         <div className="space-y-3">
           <label className="block">
@@ -376,6 +393,8 @@ export default function AdminPanel({ section = "overview" }) {
           </div>
         </div>
       </Modal>
+
+      {/* Deletion Confirmation popup */}
       <ConfirmDialog
         open={Boolean(deleteBusinessTarget)}
         title="Delete Business"

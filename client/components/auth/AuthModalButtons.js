@@ -5,25 +5,26 @@ import EmailOutlined from "@mui/icons-material/EmailOutlined";
 import LockOutlined from "@mui/icons-material/LockOutlined";
 import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 import IconInput from "@/components/ui/IconInput";
 import Modal from "@/components/ui/Modal";
 import { useNotify } from "@/hooks/useNotify";
 import { authService } from "@/lib/services/auth.service";
+import CloseIcon from '@mui/icons-material/Close';
+
 
 function AuthBrandHeader({ subtitle }) {
   return (
     <div className="relative overflow-hidden rounded-xl p-4">
       
+      {/* Login page logo and Title */}
       <div className="relative flex flex-col items-center text-center">
-        <Image
+        <img
           src="https://images.pexels.com/photos/16004744/pexels-photo-16004744.jpeg"
           alt="Marketplace logo"
-          width={62}
-          height={62}
+          width={70}
+          height={70}
           priority
           className="h-28 w-28 rounded-full"
         />
@@ -65,6 +66,8 @@ export default function AuthModalButtons() {
     retry: false,
     staleTime: 30_000,
   });
+
+
   const login = useMutation({ mutationFn: authService.login });
   const register = useMutation({ mutationFn: authService.registerViewer });
   const logout = useMutation({ mutationFn: authService.logout });
@@ -157,6 +160,8 @@ export default function AuthModalButtons() {
     }
   };
 
+  // Register, login, profile and logout buttons for public header
+
   return (
     <>
       <div className="flex items-center gap-2">
@@ -202,6 +207,7 @@ export default function AuthModalButtons() {
         )}
       </div>
 
+{/* Login modal */}
       <Modal open={loginOpen} onClose={() => setLoginOpen(false)} title="Sign In" maxWidthClass="max-w-md">
         <form onSubmit={onLogin} className="space-y-4">
           <AuthBrandHeader subtitle="Securely access your products and dashboard." />
@@ -249,6 +255,7 @@ export default function AuthModalButtons() {
         </form>
       </Modal>
 
+{/* Register modal */}
       <Modal open={registerOpen} onClose={() => setRegisterOpen(false)} title="Viewer Registration" maxWidthClass="max-w-lg">
         <form onSubmit={onRegister} className="space-y-4">
           <AuthBrandHeader subtitle="Create your Marketplace viewer account in seconds." />
@@ -332,6 +339,7 @@ export default function AuthModalButtons() {
         </form>
       </Modal>
 
+{/* Profile Modal */}
       <Modal open={profileOpen} onClose={() => setProfileOpen(false)} title="My Profile" maxWidthClass="max-w-2xl">
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
