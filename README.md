@@ -1,3 +1,6 @@
+![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+
 # Product Marketplace
 
 Full-stack role-based product marketplace built with:
