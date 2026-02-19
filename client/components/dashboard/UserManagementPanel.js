@@ -14,6 +14,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import IconInput from "@/components/ui/IconInput";
 import TablePagination from "@/components/ui/TablePagination";
 import { useNotify } from "@/hooks/useNotify";
+import { refreshDashboardData } from "@/lib/dashboard-refresh";
 import { adminService } from "@/lib/services/admin.service";
 import { businessService } from "@/lib/services/business.service";
 
@@ -53,29 +54,31 @@ export default function UserManagementPanel({ mode = "owner" }) {
 
   const usersQuery = useQuery({ queryKey: ["business-users"], queryFn: businessService.listUsers });
 
+  const refreshUsers = () => refreshDashboardData(queryClient, { users: true });
+
   const createMutation = useMutation({
     mutationFn: businessService.createUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-users"] }),
+    onSuccess: refreshUsers,
   });
   const createBusinessOwnerMutation = useMutation({
     mutationFn: adminService.createBusinessOwner,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-users"] }),
+    onSuccess: refreshUsers,
   });
   const suspendUserMutation = useMutation({
     mutationFn: businessService.suspendUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-users"] }),
+    onSuccess: refreshUsers,
   });
   const updateUserMutation = useMutation({
     mutationFn: ({ id, payload }) => businessService.updateUser(id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-users"] }),
+    onSuccess: refreshUsers,
   });
   const activateUserMutation = useMutation({
     mutationFn: businessService.activateUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-users"] }),
+    onSuccess: refreshUsers,
   });
   const deleteUserMutation = useMutation({
     mutationFn: businessService.deleteUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-users"] }),
+    onSuccess: refreshUsers,
   });
   const businessesQuery = useQuery({
     queryKey: ["businesses"],

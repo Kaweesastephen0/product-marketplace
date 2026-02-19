@@ -185,10 +185,13 @@ class ViewerRegistrationAPIView(generics.GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        business = Business.objects.get(id=serializer.validated_data["business_id"])
+        business_id = serializer.validated_data.get("business_id")
+        business = Business.objects.get(id=business_id) if business_id is not None else None
         user = UserService.self_register_viewer(
             email=serializer.validated_data["email"],
             password=serializer.validated_data["password"],
+            first_name=serializer.validated_data.get("first_name", ""),
+            last_name=serializer.validated_data.get("last_name", ""),
             business=business,
         )
         return Response(UserReadSerializer(user).data, status=status.HTTP_201_CREATED)

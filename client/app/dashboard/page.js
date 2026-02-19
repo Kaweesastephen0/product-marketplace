@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
 import LockOutlined from "@mui/icons-material/LockOutlined";
 
@@ -29,6 +29,7 @@ function selectDefaultSection(role) {
 export default function DashboardPage() {
   const router = useRouter();
   const notify = useNotify();
+  const queryClient = useQueryClient();
   const { user, isLoading, isAuthenticated, clearAuthCache, refetchMe } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -85,6 +86,8 @@ export default function DashboardPage() {
       notify.warning("Session cleared");
     } finally {
       clearAuthCache();
+      queryClient.clear();
+      router.refresh();
       router.replace("/");
     }
   };

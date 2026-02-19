@@ -111,9 +111,13 @@ class SelfProfileUpdateSerializer(serializers.Serializer):
 class ViewerRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
-    business_id = serializers.IntegerField()
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    business_id = serializers.IntegerField(required=False, allow_null=True)
 
     def validate_business_id(self, value):
+        if value is None:
+            return value
         if not Business.objects.filter(id=value).exists():
             raise serializers.ValidationError("Business does not exist.")
         return value

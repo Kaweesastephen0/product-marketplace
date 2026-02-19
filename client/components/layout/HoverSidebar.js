@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
-
+import StorefrontOutlined from "@mui/icons-material/StorefrontOutlined";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 const COLLAPSED_WIDTH = 76;
@@ -21,6 +21,7 @@ function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
 
           }`}
         >
+          <StorefrontOutlined className="mr-2 text-2xl"/>
           Marketplace
         </span>
       </div>
@@ -38,7 +39,7 @@ function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
                 aria-current={selected ? "page" : undefined}
                 className={`mb-1 flex min-h-11 w-full items-center rounded-xl border-0 bg-transparent text-[#211f1a] transition-all duration-300 ${
                   expanded ? "justify-start px-3" : "justify-center px-2"
-                } ${selected ? "bg-[#176c55] text-white" : "hover:bg-[#176c55] hover:text-white"}`}
+                } ${selected ? "text-emerald-500 hover:bg-emerald-700 hover:text-white": "hover:bg-[#176c55] hover:text-white"}`}
                 
               >
                 <span
@@ -64,31 +65,11 @@ function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
       </ul>
 
       <div className="mt-auto p-3">
-        <Link
-          href="/"
-          className={`flex min-h-11 items-center rounded-xl px-2 text-[#211f1a] no-underline transition-all duration-300 hover:bg-[#f1eee2] ${
-            expanded ? "justify-start px-3" : "justify-center"
-          }`}
-        >
-          <span
-            className={`overflow-hidden whitespace-nowrap text-[13px] transition-all duration-300 ${
-              expanded ? "max-w-40 opacity-100" : "max-w-0 opacity-0"
-            }`}
-          >
-            Public Listing
-          </span>
-          <span
-            className={`overflow-hidden text-[13px] leading-none transition-all duration-300 ${
-              expanded ? "w-0 opacity-0" : "w-auto opacity-100"
-            }`}
-          >
-            P
-          </span>
-        </Link>
+       
         <button
           type="button"
           onClick={onLogout}
-          className={`mt-1 flex min-h-11 w-full items-center rounded-xl text-[#211f1a] transition-all duration-300 hover:bg-rose-50 hover:text-rose-700 ${
+          className={`mt-1 flex min-h-11 w-full items-center rounded-xl transition-all bg-rose-500 text-white  duration-300 hover:bg-rose-50 hover:text-rose-700 ${
             expanded ? "justify-start px-3" : "justify-center px-2"
           }`}
         >

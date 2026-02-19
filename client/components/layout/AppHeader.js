@@ -5,14 +5,16 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 // Renders the dashboard header, profile menu, and quick actions.
 export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogout, onOpenProfile }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-[1100] border-b border-[#ded9cb] bg-[#fffef9]/90 backdrop-blur">
-      <div className="flex min-h-[70px] items-center gap-2 px-3 sm:px-4">
+    <header className="sticky top-0 z-1100 border-b border-[#ded9cb] bg-[#fffef9]/90 backdrop-blur">
+      <div className="flex min-h-17.5 items-center gap-2 px-3 sm:px-4">
         <button
           type="button"
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#211f1a] hover:bg-[#f1eee2] md:hidden"
@@ -44,7 +46,7 @@ export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogo
           </button>
 
           {menuOpen ? (
-            <div className="absolute right-0 top-[calc(100%+6px)] z-[1200] min-w-44 rounded-xl border border-[#ded9cb] bg-white p-1 shadow-lg">
+            <div className="absolute right-0 top-[calc(100%+6px)] z-1200 min-w-44 rounded-xl border border-[#ded9cb] bg-white p-1 shadow-lg">
               <div className="rounded-lg px-3 py-2 text-xs text-[#6f6c63]">{user?.email}</div>
               <button
                 type="button"
@@ -63,7 +65,7 @@ export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogo
                   setMenuOpen(false);
                   onLogout();
                 }}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-[#211f1a] hover:bg-[#f5f4ef]"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-500 hover:bg-rose-50 hover:text"
               >
                 <LogoutOutlined fontSize="medium" />
                 Logout
@@ -72,6 +74,19 @@ export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogo
           ) : null}
         </div>
       </div>
+       <ConfirmDialog
+              open={logoutConfirmOpen}
+              title="Confirm Logout"
+              message="Are you sure you want to log out?"
+              confirmLabel="Logout"
+              confirmTone="warning"
+              onCancel={() => setLogoutConfirmOpen(false)}
+              onConfirm={() => {
+                setLogoutConfirmOpen(false);
+                onMobileClose?.();
+                onLogout?.();
+              }}
+            />
     </header>
   );
 }

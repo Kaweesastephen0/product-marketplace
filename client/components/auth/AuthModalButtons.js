@@ -2,10 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import EmailOutlined from "@mui/icons-material/EmailOutlined";
-import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
 import LockOutlined from "@mui/icons-material/LockOutlined";
 import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -13,6 +13,26 @@ import IconInput from "@/components/ui/IconInput";
 import Modal from "@/components/ui/Modal";
 import { useNotify } from "@/hooks/useNotify";
 import { authService } from "@/lib/services/auth.service";
+
+function AuthBrandHeader({ subtitle }) {
+  return (
+    <div className="relative overflow-hidden rounded-xl p-4">
+      
+      <div className="relative flex flex-col items-center text-center">
+        <Image
+          src="https://images.pexels.com/photos/16004744/pexels-photo-16004744.jpeg"
+          alt="Marketplace logo"
+          width={62}
+          height={62}
+          priority
+          className="h-28 w-28 rounded-full"
+        />
+        <h4 className="m-0 mt-3 text-3xl font-bold leading-tight text-[#1f332b]">Marketplace</h4>
+        <p className="m-0 mt-1 text-xs text-[#5b594f]">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
 
 // Renders auth actions and profile modal controls in the public header.
 export default function AuthModalButtons() {
@@ -24,7 +44,13 @@ export default function AuthModalButtons() {
   const [registerOpen, setRegisterOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
-  const [registerForm, setRegisterForm] = useState({ email: "", password: "", business_id: "" });
+  const [registerForm, setRegisterForm] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+  });
   const [profileForm, setProfileForm] = useState({
     first_name: "",
     last_name: "",
@@ -76,9 +102,18 @@ export default function AuthModalButtons() {
   const onRegister = async (event) => {
     event.preventDefault();
     try {
-      await register.mutateAsync({ ...registerForm, business_id: Number(registerForm.business_id) });
+      if (registerForm.password !== registerForm.confirm_password) {
+        notify.warning("Passwords do not match");
+        return;
+      }
+      await register.mutateAsync({
+        first_name: registerForm.first_name,
+        last_name: registerForm.last_name,
+        email: registerForm.email,
+        password: registerForm.password,
+      });
       notify.success("Viewer account created successfully");
-      setRegisterForm({ email: "", password: "", business_id: "" });
+      setRegisterForm({ first_name: "", last_name: "", email: "", password: "", confirm_password: "" });
       setRegisterOpen(false);
     } catch (error) {
       notify.error(error.message || "Registration failed");
@@ -89,8 +124,7 @@ export default function AuthModalButtons() {
   const onLogout = async () => {
     try {
       await logout.mutateAsync();
-      queryClient.removeQueries({ queryKey: ["header-me"] });
-      queryClient.removeQueries({ queryKey: ["me"] });
+      queryClient.clear();
       setLoginOpen(false);
       setRegisterOpen(false);
       setProfileOpen(false);
@@ -169,12 +203,15 @@ export default function AuthModalButtons() {
       </div>
 
       <Modal open={loginOpen} onClose={() => setLoginOpen(false)} title="Sign In" maxWidthClass="max-w-md">
-        <form onSubmit={onLogin} className="space-y-3">
+        <form onSubmit={onLogin} className="space-y-4">
+          <AuthBrandHeader subtitle="Securely access your products and dashboard." />
           <label className="block">
             <span className="mb-1 block text-sm text-[#211f1a]">Email</span>
             <IconInput
               icon={EmailOutlined}
               type="email"
+              iconFontSize="medium"
+              className="py-3 text-base"
               value={loginForm.email}
               onChange={(e) => setLoginForm((prev) => ({ ...prev, email: e.target.value }))}
               required
@@ -185,12 +222,15 @@ export default function AuthModalButtons() {
             <IconInput
               icon={LockOutlined}
               type="password"
+              iconFontSize="medium"
+              toggleIconFontSize="medium"
+              className="py-3 text-base"
               value={loginForm.password}
               onChange={(e) => setLoginForm((prev) => ({ ...prev, password: e.target.value }))}
               required
             />
           </label>
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex justify-end gap-2 border-t border-[#e7e2d4] pt-3">
             <button
               type="button"
               onClick={() => setLoginOpen(false)}
@@ -210,12 +250,37 @@ export default function AuthModalButtons() {
       </Modal>
 
       <Modal open={registerOpen} onClose={() => setRegisterOpen(false)} title="Viewer Registration" maxWidthClass="max-w-lg">
-        <form onSubmit={onRegister} className="space-y-3">
+        <form onSubmit={onRegister} className="space-y-4">
+          <AuthBrandHeader subtitle="Create your Marketplace viewer account in seconds." />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">First Name</span>
+              <IconInput
+                icon={PersonOutlineOutlined}
+                iconFontSize="medium"
+                className="py-3 text-base"
+                value={registerForm.first_name}
+                onChange={(e) => setRegisterForm((prev) => ({ ...prev, first_name: e.target.value }))}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm text-[#211f1a]">Last Name</span>
+              <IconInput
+                icon={PersonOutlineOutlined}
+                iconFontSize="medium"
+                className="py-3 text-base"
+                value={registerForm.last_name}
+                onChange={(e) => setRegisterForm((prev) => ({ ...prev, last_name: e.target.value }))}
+              />
+            </label>
+          </div>
           <label className="block">
             <span className="mb-1 block text-sm text-[#211f1a]">Email</span>
             <IconInput
               icon={EmailOutlined}
               type="email"
+              iconFontSize="medium"
+              className="py-3 text-base"
               value={registerForm.email}
               onChange={(e) => setRegisterForm((prev) => ({ ...prev, email: e.target.value }))}
               required
@@ -226,22 +291,29 @@ export default function AuthModalButtons() {
             <IconInput
               icon={LockOutlined}
               type="password"
+              iconFontSize="medium"
+              toggleIconFontSize="medium"
+              className="py-3 text-base"
               value={registerForm.password}
               onChange={(e) => setRegisterForm((prev) => ({ ...prev, password: e.target.value }))}
               required
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-sm text-[#211f1a]">Business ID</span>
+            <span className="mb-1 block text-sm text-[#211f1a]">Confirm Password</span>
             <IconInput
-              icon={BusinessOutlined}
-              type="number"
-              value={registerForm.business_id}
-              onChange={(e) => setRegisterForm((prev) => ({ ...prev, business_id: e.target.value }))}
+              icon={LockOutlined}
+              type="password"
+              iconFontSize="medium"
+              toggleIconFontSize="medium"
+              className="py-3 text-base"
+              value={registerForm.confirm_password}
+              onChange={(e) => setRegisterForm((prev) => ({ ...prev, confirm_password: e.target.value }))}
               required
             />
           </label>
-          <div className="flex justify-end gap-2 pt-1">
+          
+          <div className="flex justify-end gap-2 border-t border-[#e7e2d4] pt-3">
             <button
               type="button"
               onClick={() => setRegisterOpen(false)}
