@@ -29,6 +29,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         )
         read_only_fields = fields
 
+    # Builds an absolute URL for uploaded image files when request context is available.
     def get_image_file_url(self, obj):
         if not obj.image:
             return None
@@ -37,6 +38,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             return obj.image.url
         return request.build_absolute_uri(obj.image.url)
 
+    # Returns uploaded image URL first, then falls back to external image_url field.
     def get_display_image_url(self, obj):
         return self.get_image_file_url(obj) or obj.image_url or None
 
@@ -54,6 +56,7 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         model = Product
         fields = ("name", "description", "price", "business", "image", "image_url")
 
+    # Enforces that clients submit either an uploaded image or an image URL, not both.
     def validate(self, attrs):
         if attrs.get("image") is not None and attrs.get("image_url"):
             raise serializers.ValidationError("Provide either an image upload or an image URL, not both.")
@@ -68,6 +71,7 @@ class PublicProductSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "description", "price", "business_name", "image_url", "updated_at")
         read_only_fields = fields
 
+    # Returns absolute uploaded image URL when present, otherwise returns stored image_url.
     def get_image_url(self, obj):
         if obj.image:
             request = self.context.get("request")

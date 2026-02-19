@@ -43,5 +43,6 @@ class Product(models.Model):
             models.Index(fields=["status"]),
         ]
 
+    # Returns product name for admin lists and string casting.
     def __str__(self) -> str:
         return self.name

@@ -62,28 +62,18 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
 
-if DB_NAME and DB_USER:
-    DATABASES = {
+
+DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
             "NAME": DB_NAME,
             "USER": DB_USER,
-            "PASSWORD": DB_PASSWORD or "",
-            "HOST": DB_HOST or "",
-            "PORT": DB_PORT or "",
-            "OPTIONS": {
-                "charset": "utf8mb4",
-                "connect_timeout": 10,
-            },
+            "PASSWORD": DB_PASSWORD,
+            "HOST": DB_HOST,
+            "PORT": DB_PORT,
         },
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",

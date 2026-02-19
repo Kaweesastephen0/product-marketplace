@@ -88,6 +88,7 @@ class SelfProfileUpdateSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=False, write_only=True, min_length=8, trim_whitespace=False)
     confirm_new_password = serializers.CharField(required=False, write_only=True, trim_whitespace=False)
 
+    # Validates password-change inputs and enforces current/new/confirm dependency rules.
     def validate(self, attrs):
         has_new_password = "new_password" in attrs and attrs.get("new_password")
         has_current_password = "current_password" in attrs and attrs.get("current_password")
@@ -115,6 +116,7 @@ class ViewerRegistrationSerializer(serializers.Serializer):
     last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
     business_id = serializers.IntegerField(required=False, allow_null=True)
 
+    # Verifies that provided business_id exists when a viewer chooses a business.
     def validate_business_id(self, value):
         if value is None:
             return value
@@ -124,6 +126,7 @@ class ViewerRegistrationSerializer(serializers.Serializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    # Blocks login for suspended users even when the password is correct.
     def validate(self, attrs):
         email = attrs.get("email")
         password = attrs.get("password")

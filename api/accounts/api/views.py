@@ -33,6 +33,7 @@ User = get_user_model()
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    # Blacklists the submitted refresh token and signs the user out.
     def post(self, request):
         refresh_token = request.data.get("refresh")
         if not refresh_token:
@@ -53,6 +54,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class MeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    # Returns the authenticated user's profile and business context.
     def get(self, request):
         return Response(
             {
@@ -69,6 +71,7 @@ class MeAPIView(APIView):
             status=status.HTTP_200_OK,
         )
 
+    # Updates first/last name and optionally changes password after current-password check.
     def patch(self, request):
         serializer = SelfProfileUpdateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -117,6 +120,7 @@ class CreateBusinessOwnerAPIView(generics.GenericAPIView):
     permission_classes = [IsSystemAdmin]
     serializer_class = BusinessOwnerCreateSerializer
 
+    # Creates a business-owner account from validated payload and returns created user.
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -128,17 +132,20 @@ class CreateBusinessOwnerAPIView(generics.GenericAPIView):
 class BusinessUsersAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminOrBusinessOwner]
 
+    # Returns all users for admins or same-business users for business owners.
     def get_queryset(self, request):
         if request.user.has_role(Roles.ADMIN):
             return User.objects.select_related("business", "role").all()
         return User.objects.filter(business_id=request.user.business_id).select_related("business", "role")
 
+    # Creates a business-scoped user based on actor role and request payload.
     def post(self, request):
         serializer = OwnerUserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = UserService.create_business_user(actor=request.user, **serializer.validated_data)
         return Response(UserReadSerializer(user).data, status=status.HTTP_201_CREATED)
 
+    # Lists scoped users with selected fields optimized for user-management tables.
     def get(self, request):
         users = self.get_queryset(request).only(
             "id",
@@ -154,11 +161,13 @@ class BusinessUsersAPIView(APIView):
 class BusinessUserDetailAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminOrBusinessOwner]
 
+    # Returns the editable user scope for admins or same-business records for owners.
     def get_queryset(self, request):
         if request.user.has_role(Roles.ADMIN):
             return User.objects.select_related("business", "role").all()
         return User.objects.filter(business_id=request.user.business_id).select_related("business", "role")
 
+    # Partially updates the target user with serializer selection based on actor role.
     def patch(self, request, pk):
         target = get_object_or_404(self.get_queryset(request), pk=pk)
 
@@ -172,6 +181,7 @@ class BusinessUserDetailAPIView(APIView):
         )
         return Response(UserReadSerializer(updated).data, status=status.HTTP_200_OK)
 
+    # Deletes the target user after service-level permission and scope checks.
     def delete(self, request, pk):
         target = get_object_or_404(self.get_queryset(request), pk=pk)
         UserService.delete_business_user(actor=request.user, user=target)
@@ -182,6 +192,7 @@ class ViewerRegistrationAPIView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = ViewerRegistrationSerializer
 
+    # Registers a viewer account from public payload and optional business link.
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -202,6 +213,7 @@ class AdminAuditLogListAPIView(generics.ListAPIView):
     serializer_class = AuditLogReadSerializer
     pagination_class = PageNumberPagination
 
+    # Returns admin-visible audit logs filtered by query params (action/target/business/search).
     def get_queryset(self):
         queryset = AuditLog.objects.select_related("actor", "business").all()
         action = self.request.query_params.get("action")
@@ -229,6 +241,7 @@ class AdminAuditLogListAPIView(generics.ListAPIView):
 class AdminAuditLogClearAPIView(APIView):
     permission_classes = [IsAuthenticated, IsSystemAdmin]
 
+    # Deletes all audit logs and returns the number of removed rows.
     def delete(self, request):
         deleted_count, _ = AuditLog.objects.all().delete()
         return Response({"deleted": deleted_count}, status=status.HTTP_200_OK)
@@ -237,6 +250,7 @@ class AdminAuditLogClearAPIView(APIView):
 class AdminAuditLogDetailAPIView(APIView):
     permission_classes = [IsAuthenticated, IsSystemAdmin]
 
+    # Deletes a single audit log entry by primary key.
     def delete(self, request, pk):
         audit_log = get_object_or_404(AuditLog.objects.all(), pk=pk)
         audit_log.delete()

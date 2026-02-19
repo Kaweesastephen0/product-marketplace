@@ -9,11 +9,13 @@ from products.models import ProductStatus
 
 class ProductService:
     @staticmethod
+    # Clears cached public product IDs so public listing reflects latest status changes.
     def _invalidate_public_product_cache():
         cache.delete("public_product_ids")
 
     @staticmethod
     @transaction.atomic
+    # Creates a draft product in the resolved business and records creation in audit logs.
     def create_product(*, user, validated_data):
         if user.role_code not in PRODUCT_EDIT_ROLES and not user.is_superuser:
             raise PermissionDenied("You do not have permission to create products.")
@@ -49,6 +51,7 @@ class ProductService:
 
     @staticmethod
     @transaction.atomic
+    # Applies editable fields, resets approval state when needed, and writes an update audit log.
     def update_product(*, user, product, validated_data):
         if user.role_code not in PRODUCT_EDIT_ROLES and not user.is_superuser:
             raise PermissionDenied("You do not have permission to edit products.")
@@ -88,6 +91,7 @@ class ProductService:
 
     @staticmethod
     @transaction.atomic
+    # Moves draft/rejected products to pending_approval and clears prior rejection reason.
     def submit_for_approval(*, user, product):
         if user.role_code not in PRODUCT_EDIT_ROLES and not user.is_superuser:
             raise PermissionDenied("You do not have permission to submit products.")
@@ -111,6 +115,7 @@ class ProductService:
 
     @staticmethod
     @transaction.atomic
+    # Approves a pending product and persists the status change with audit logging.
     def approve_product(*, user, product):
         if user.role_code not in PRODUCT_APPROVE_ROLES and not user.is_superuser:
             raise PermissionDenied("Only approver/admin role can approve products.")
@@ -132,6 +137,7 @@ class ProductService:
 
     @staticmethod
     @transaction.atomic
+    # Rejects a pending product with a required reason and stores the rejection in audit logs.
     def reject_product(*, user, product, reason):
         if user.role_code not in PRODUCT_APPROVE_ROLES and not user.is_superuser:
             raise PermissionDenied("Only approver/admin role can reject products.")
@@ -156,6 +162,7 @@ class ProductService:
 
     @staticmethod
     @transaction.atomic
+    # Deletes a product for admins only and records deletion before removing the row.
     def delete_product(*, user, product):
         if not user.has_role(Roles.ADMIN):
             raise PermissionDenied("Only admin role can delete products.")

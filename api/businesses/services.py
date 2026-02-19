@@ -10,6 +10,7 @@ User = get_user_model()
 
 class StatisticsService:
     @staticmethod
+    # Calculates global admin metrics across businesses, users, and product approval states.
     def admin_statistics():
         total_businesses = Business.objects.count()
         total_users = User.objects.count()
@@ -31,6 +32,7 @@ class StatisticsService:
         }
 
     @staticmethod
+    # Calculates dashboard metrics scoped to the requesting user's business.
     def business_statistics(*, user):
         business_id = user.business_id
         if user.has_role(Roles.ADMIN):

@@ -5,6 +5,7 @@ from products.models import ProductStatus
 
 
 class IsProductActionAllowed(BasePermission):
+    # Grants or blocks product actions by role based on the current viewset action.
     def has_permission(self, request, view):
         user = request.user
         if not (user and user.is_authenticated):
@@ -30,6 +31,7 @@ class IsProductActionAllowed(BasePermission):
             return False
         return False
 
+    # Applies object-level tenant checks and viewer-only approved-product visibility.
     def has_object_permission(self, request, view, obj):
         user = request.user
         if user.has_role(Roles.ADMIN):
