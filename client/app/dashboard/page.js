@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
 import LockOutlined from "@mui/icons-material/LockOutlined";
-
 import AppFooter from "@/components/layout/AppFooter";
 import AppHeader from "@/components/layout/AppHeader";
 import HoverSidebar from "@/components/layout/HoverSidebar";
@@ -45,6 +44,7 @@ export default function DashboardPage() {
   const menu = useMemo(() => ROLE_NAVIGATION[role] || [], [role]);
   const [active, setActive] = useState(selectDefaultSection(role));
 
+  //User Role handling during login
   useEffect(() => {
     if (role && !menu.find((item) => item.key === active)) {
       setActive(selectDefaultSection(role));
@@ -77,7 +77,7 @@ export default function DashboardPage() {
 
   const updateProfileMutation = useMutation({ mutationFn: authService.updateProfile });
 
-  // Logs the user out, clears cached auth state, and redirects to login.
+  // Logs the user out, clears cached auth state, and redirects to home page.
   const handleLogout = async () => {
     try {
       await authService.logout();
@@ -146,6 +146,8 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="flex min-h-0 flex-1">
+
+        {/* sidebar */}
         <HoverSidebar
           items={menu}
           activeKey={active}
@@ -155,6 +157,7 @@ export default function DashboardPage() {
           onLogout={handleLogout}
         />
 
+     {/* Header */}
         <div className="flex min-w-0 flex-1 flex-col">
           <AppHeader
             title="Dashboard"
@@ -169,7 +172,10 @@ export default function DashboardPage() {
         </div>
       </div>
 
+    {/* Footer */}
       <AppFooter />
+
+    {/* Use profile */}
       <Modal open={profileOpen} onClose={() => setProfileOpen(false)} title="My Profile" maxWidthClass="max-w-2xl">
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

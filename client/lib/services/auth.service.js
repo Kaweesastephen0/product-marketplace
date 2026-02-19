@@ -11,7 +11,7 @@ export const authService = {
     const { data } = await api.post("/api/auth/logout", {});
     return data;
   },
-  // Performs me operations.
+  // Performs me/profile info operations.
   async me() {
     const { data } = await api.get("/api/auth/me");
     return data;

@@ -11,12 +11,14 @@ ROLE_SEED = [
 ]
 
 
+# Seeds the Role table with the predefined role code/name pairs.
 def seed_roles(apps, schema_editor):
     Role = apps.get_model("accounts", "Role")
     for code, name in ROLE_SEED:
         Role.objects.get_or_create(code=code, defaults={"name": name})
 
 
+# Migrates legacy string role values on users to the new role foreign key.
 def map_legacy_roles(apps, schema_editor):
     User = apps.get_model("accounts", "User")
     Role = apps.get_model("accounts", "Role")

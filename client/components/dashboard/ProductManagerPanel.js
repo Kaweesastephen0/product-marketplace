@@ -7,7 +7,6 @@ import AttachMoneyOutlined from "@mui/icons-material/AttachMoneyOutlined";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import LinkOutlined from "@mui/icons-material/LinkOutlined";
 import ImageOutlined from "@mui/icons-material/ImageOutlined";
-
 import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import IconInput from "@/components/ui/IconInput";
@@ -47,6 +46,7 @@ export default function ProductManagerPanel({ mode, section }) {
   const productsQuery = useProductsQuery({ page, status });
   const mutations = useProductMutations({ page, status });
 
+  // Role handling
   const canCreate = mode === "owner" || mode === "editor";
   const canEdit = mode === "editor";
   const canSubmit = canCreate;
@@ -403,12 +403,13 @@ export default function ProductManagerPanel({ mode, section }) {
         onNext={() => setPage((prev) => Math.min(pages, prev + 1))}
       />
 
+{/* View product detaiils modal */}
       <Modal open={viewModalOpen} onClose={() => setViewModalOpen(false)} title="Product Details" maxWidthClass="max-w-xl">
         {viewTarget ? (
           <div className="space-y-3">
             {viewTarget.display_image_url ? (
               <div className="overflow-hidden rounded-lg border border-[#d6d0be] bg-[#f7f4eb]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                
                 <img
                   src={viewTarget.display_image_url}
                   alt={viewTarget.name}
@@ -453,6 +454,7 @@ export default function ProductManagerPanel({ mode, section }) {
         ) : null}
       </Modal>
 
+   {/* Edit Product modal */}
       <Modal
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -528,7 +530,7 @@ export default function ProductManagerPanel({ mode, section }) {
           </label>
           {imagePreview ? (
             <div className="overflow-hidden rounded-lg border border-[#d6d0be] bg-[#f7f4eb]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+             
               <img
                 src={imagePreview}
                 alt="Selected product preview"
@@ -560,6 +562,8 @@ export default function ProductManagerPanel({ mode, section }) {
           </div>
         </div>
       </Modal>
+
+    {/* comfirmation popup */}
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Delete Product"

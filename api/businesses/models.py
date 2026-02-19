@@ -17,5 +17,6 @@ class Business(models.Model):
     class Meta:
         ordering = ["name"]
 
+    # Returns business name for admin labels and serializers.
     def __str__(self) -> str:
         return self.name

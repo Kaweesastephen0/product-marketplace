@@ -8,6 +8,7 @@ from tests.factories.business import BusinessFactory
 User = get_user_model()
 
 
+# Returns an existing role by code or creates it with the default display name.
 def get_role(code):
     name = dict(Roles.CHOICES)[code]
     role, _ = Role.objects.get_or_create(code=code, defaults={"name": name})
@@ -25,6 +26,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     is_active = True
 
     @factory.post_generation
+    # Hashes and stores password on the created user, using default test password when omitted.
     def password(obj, create, extracted, **kwargs):
         raw_password = extracted or "Passw0rd!"
         obj.set_password(raw_password)

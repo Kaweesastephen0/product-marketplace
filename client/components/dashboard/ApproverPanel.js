@@ -8,16 +8,22 @@ import { productsService } from "@/lib/services/products.service";
 
 // Renders approver metrics and product approval management section.
 export default function ApproverPanel({ section = "pending" }) {
+
+  // Fetches products with status "pending_approval" and Stores them in React Query cache
   const pendingQuery = useQuery({
     queryKey: ["approver-stats", "pending"],
     queryFn: () => productsService.list({ page: 1, status: "pending_approval" }),
     staleTime: 30_000,
   });
+
+  // Fetches products with status "approved"
   const approvedQuery = useQuery({
     queryKey: ["approver-stats", "approved"],
     queryFn: () => productsService.list({ page: 1, status: "approved" }),
     staleTime: 30_000,
   });
+
+    // Fetches products with status "rejected"
   const rejectedQuery = useQuery({
     queryKey: ["approver-stats", "rejected"],
     queryFn: () => productsService.list({ page: 1, status: "rejected" }),

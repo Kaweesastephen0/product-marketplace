@@ -12,6 +12,7 @@ _UNSET = object()
 
 class AuditService:
     @staticmethod
+    # Persists an audit trail entry with actor, target, business scope, and metadata.
     def log(*, action, actor=None, business=None, target_type, target_id, metadata=None):
         AuditLog.objects.create(
             action=action,
@@ -26,6 +27,7 @@ class AuditService:
 class UserService:
     @staticmethod
     @transaction.atomic
+    # Creates a business and its owner user, then links owner to business and records audit log.
     def create_business_owner(
         *,
         actor,
@@ -62,6 +64,7 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
+    # Creates a user with role/business rules based on whether actor is admin or business owner.
     def create_business_user(*, actor, email, password, role, business_id=None, first_name="", last_name=""):
         if role == Roles.BUSINESS_OWNER and not actor.has_role(Roles.ADMIN):
             raise PermissionDenied("Only admins can create business owners.")
@@ -106,6 +109,7 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
+    # Updates user identity, role, status, and business fields with role-based edit constraints.
     def update_business_user(
         *,
         actor,
@@ -178,6 +182,7 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
+    # Deletes a user after enforcing actor permissions and emits an audit log entry.
     def delete_business_user(*, actor, user):
         if actor.has_role(Roles.ADMIN):
             if user.role_code == Roles.ADMIN:
@@ -206,6 +211,7 @@ class UserService:
 
     @staticmethod
     @transaction.atomic
+    # Registers a viewer account (optionally linked to a business) and writes an audit event.
     def self_register_viewer(*, email, password, first_name="", last_name="", business=None):
         user = User.objects.create_user(
             email=email,

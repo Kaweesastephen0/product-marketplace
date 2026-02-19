@@ -22,7 +22,7 @@ export default function Modal({ open, onClose, title, children, maxWidthClass = 
 
   return (
     <div
-      className="fixed inset-0 z-[1400] flex items-start justify-center overflow-y-auto bg-black/45 p-4 sm:items-center"
+      className="fixed inset-0 z-1400 flex items-start justify-center overflow-y-auto bg-black/45 p-4 sm:items-center"
       onClick={onClose}
       role="button"
       tabIndex={-1}

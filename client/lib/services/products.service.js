@@ -10,7 +10,7 @@ function assertValidProductId(id) {
 }
 
 export const productsService = {
-  // Performs list operations.
+  // Performs product list operations.
   async list({ page = 1, status } = {}) {
     const params = new URLSearchParams();
     params.set("page", String(page));
@@ -18,38 +18,38 @@ export const productsService = {
     const { data } = await api.get(`/api/products?${params.toString()}`);
     return data;
   },
-  // Performs create operations.
+  // Performs product create operations.
   async create(payload) {
     const requestBody = buildProductPayload(payload);
     const { data } = await api.post("/api/products", requestBody);
     return data;
   },
-  // Performs update operations.
+  // Performs product update operations.
   async update(id, payload) {
     const productId = assertValidProductId(id);
     const requestBody = buildProductPayload(payload);
     const { data } = await api.patch(`/api/products/${productId}`, requestBody);
     return data;
   },
-  // Performs approve operations.
+  // Performs  product approval operations.
   async approve(id) {
     const productId = assertValidProductId(id);
     const { data } = await api.post(`/api/products/${productId}/approve`, {});
     return data;
   },
-  // Performs reject operations.
+  // Performs product rejection operations.
   async reject(id, reason) {
     const productId = assertValidProductId(id);
     const { data } = await api.post(`/api/products/${productId}/reject`, { reason });
     return data;
   },
-  // Performs submit operations.
+  // Performs product submittion operations.
   async submit(id) {
     const productId = assertValidProductId(id);
     const { data } = await api.post(`/api/products/${productId}/submit`, {});
     return data;
   },
-  // Performs remove operations.
+  // Performs product removal operations.
   async remove(id) {
     const productId = assertValidProductId(id);
     const { data } = await api.delete(`/api/products/${productId}`);

@@ -12,6 +12,7 @@ class Role(models.Model):
     class Meta:
         ordering = ["code"]
 
+    # Returns the human-readable role name in admin and logs.
     def __str__(self):
         return self.name
 
@@ -19,7 +20,10 @@ class Role(models.Model):
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
+    # Converts role input (Role object/string/None) into a persisted Role instance.
     def _resolve_role(self, role):
+        
+        # Fetches an existing role by code or creates it with a default display name.
         def _get_or_seed(code):
             display = dict(Roles.CHOICES).get(code, code)
             role_obj, _ = Role.objects.get_or_create(code=code, defaults={"name": display})
@@ -31,6 +35,7 @@ class UserManager(BaseUserManager):
             return _get_or_seed(role)
         return _get_or_seed(Roles.VIEWER)
 
+    # Creates and saves a user with normalized email, resolved role, and hashed password.
     def _create_user(self, email, password, **extra_fields):
         if not email:
             raise ValueError("The Email must be set")
@@ -43,12 +48,14 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    # Creates a regular user with viewer role and non-staff flags by default.
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("role", Roles.VIEWER)
         return self._create_user(email, password, **extra_fields)
 
+    # Creates an admin superuser and validates required staff/superuser flags.
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -82,12 +89,15 @@ class User(AbstractUser):
         ordering = ["email"]
 
     @property
+    # Returns the role code string for the related role, or None when unset.
     def role_code(self):
         return self.role.code if self.role_id else None
 
+    # Returns True for superusers or when the user's role code matches the provided code.
     def has_role(self, role_code):
         return self.is_superuser or self.role_code == role_code
 
+    # Returns the user's email for string representation.
     def __str__(self):
         return self.email
 
@@ -120,5 +130,6 @@ class AuditLog(models.Model):
             models.Index(fields=["target_type", "target_id"]),
         ]
 
+    # Returns a compact action/target label for audit log rows.
     def __str__(self):
         return f"{self.action} ({self.target_type}:{self.target_id})"

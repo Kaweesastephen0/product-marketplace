@@ -15,6 +15,7 @@ from businesses.services import StatisticsService
 class AdminStatisticsAPIView(APIView):
     permission_classes = [IsAuthenticated, IsSystemAdmin]
 
+    # Returns system-wide statistics for admins.
     def get(self, request):
         payload = StatisticsService.admin_statistics()
         return Response(payload, status=status.HTTP_200_OK)
@@ -23,6 +24,7 @@ class AdminStatisticsAPIView(APIView):
 class BusinessStatisticsAPIView(APIView):
     permission_classes = [IsAuthenticated, IsBusinessOwner]
 
+    # Returns business-scoped statistics for business owners.
     def get(self, request):
         payload = StatisticsService.business_statistics(user=request.user)
         return Response(payload, status=status.HTTP_200_OK)
@@ -41,6 +43,7 @@ class BusinessListAPIView(ListAPIView):
 class BusinessDetailAPIView(APIView):
     permission_classes = [IsAuthenticated, IsSystemAdmin]
 
+    # Partially updates a business and returns the annotated refreshed record.
     def patch(self, request, pk):
         business = Business.objects.filter(pk=pk).first()
         if not business:
@@ -58,6 +61,7 @@ class BusinessDetailAPIView(APIView):
         )
         return Response(BusinessListSerializer(output).data, status=status.HTTP_200_OK)
 
+    # Deletes a business unless protected related records prevent removal.
     def delete(self, request, pk):
         business = Business.objects.filter(pk=pk).first()
         if not business:

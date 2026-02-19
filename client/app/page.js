@@ -1,3 +1,4 @@
+
 import AuthModalButtons from "@/components/auth/AuthModalButtons";
 import AppFooter from "@/components/layout/AppFooter";
 import { getPublicProducts } from "@/lib/services/public-products.service";
@@ -14,6 +15,8 @@ export default async function PublicProductsPage({ searchParams }) {
 
   return (
     <div className="min-h-screen pb-10">
+
+      {/* Public header */}
       <header className="border-b border-[#ded9cb] bg-[#fffef9]">
         <div className="mx-auto flex w-full max-w-300 items-center justify-between gap-3 px-4 py-5">
           <div className="flex items-center gap-2">
@@ -24,16 +27,17 @@ export default async function PublicProductsPage({ searchParams }) {
         </div>
       </header>
 
+    {/* Main content */}
       <main className="mx-auto w-full max-w-300 px-4 py-6">
         <h2 className="m-0 text-3xl font-bold text-[#211f1a]">Approved Products</h2>
-        <p className="m-0 mt-1 text-sm text-[#6f6c63]">Public catalog of products approved by business approvers.</p>
+        <p className="m-0 mt-1 text-sm text-[#6f6c63]">Public products approved by business approvers.</p>
 
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {products.map((product) => (
             <article key={product.id} className="h-full rounded-2xl border border-[#ded9cb] bg-white p-4 shadow-sm">
               <div className="mb-3 overflow-hidden rounded-xl border border-[#ece6d8] bg-[#f7f4eb]">
                 {product.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
+                 
                   <img
                     src={product.image_url}
                     alt={product.name}
@@ -86,6 +90,8 @@ export default async function PublicProductsPage({ searchParams }) {
         </div>
       </main>
 
+     {/* Footer */}
+     
       <AppFooter />
     </div>
   );

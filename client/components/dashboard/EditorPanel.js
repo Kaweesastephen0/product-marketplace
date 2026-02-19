@@ -8,16 +8,22 @@ import { productsService } from "@/lib/services/products.service";
 
 // Renders editor product metrics and editor product management section.
 export default function EditorPanel({ section = "pending" }) {
+
+   // Fetches products with status "pending_approval"
   const pendingQuery = useQuery({
     queryKey: ["editor-stats", "pending"],
     queryFn: () => productsService.list({ page: 1, status: "pending_approval" }),
     staleTime: 30_000,
   });
+
+   // Fetches products with status "approved"
   const approvedQuery = useQuery({
     queryKey: ["editor-stats", "approved"],
     queryFn: () => productsService.list({ page: 1, status: "approved" }),
     staleTime: 30_000,
   });
+
+   // Fetches products with status "rejected"
   const rejectedQuery = useQuery({
     queryKey: ["editor-stats", "rejected"],
     queryFn: () => productsService.list({ page: 1, status: "rejected" }),

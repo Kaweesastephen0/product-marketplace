@@ -10,18 +10,22 @@ from tests.factories.user import UserFactory, get_role
 
 
 @pytest.fixture
+# Returns a DRF API client used by endpoint tests.
 def api_client():
     return APIClient()
 
 
 @pytest.fixture(autouse=True)
+# Ensures all role records exist before each test run.
 def seed_roles(db):
     for code, name in Roles.CHOICES:
         Role.objects.get_or_create(code=code, defaults={"name": name})
 
 
 @pytest.fixture
+# Returns a helper that logs in a user and returns JWT token pair.
 def auth_tokens(api_client):
+    # Posts login credentials to /api/login and returns parsed token payload.
     def _tokens_for(user, password="Passw0rd!"):
         response = api_client.post(
             "/api/login/",
@@ -35,6 +39,7 @@ def auth_tokens(api_client):
 
 
 @pytest.mark.django_db
+# Verifies admins can create a business owner with profile names.
 def test_admin_can_create_business_owner(api_client, auth_tokens):
     admin = UserFactory(role=get_role(Roles.ADMIN), business=None)
     tokens = auth_tokens(admin)
@@ -59,6 +64,7 @@ def test_admin_can_create_business_owner(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies non-admin users are forbidden from creating business owners.
 def test_non_admin_cannot_create_business_owner(api_client, auth_tokens):
     owner = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
     tokens = auth_tokens(owner)
@@ -77,6 +83,7 @@ def test_non_admin_cannot_create_business_owner(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies owners can create editor users but cannot create viewer users.
 def test_owner_can_create_editor_and_approver_only(api_client, auth_tokens):
     owner = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
     tokens = auth_tokens(owner)
@@ -105,6 +112,7 @@ def test_owner_can_create_editor_and_approver_only(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies editors cannot call the approve endpoint.
 def test_editor_cannot_approve_product(api_client, auth_tokens):
     editor = UserFactory(role=get_role(Roles.EDITOR))
     product = ProductFactory(business=editor.business, created_by=editor, status=ProductStatus.PENDING_APPROVAL)
@@ -117,6 +125,7 @@ def test_editor_cannot_approve_product(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies approvers cannot edit product fields.
 def test_approver_cannot_edit_product(api_client, auth_tokens):
     editor = UserFactory(role=get_role(Roles.EDITOR))
     approver = UserFactory(role=get_role(Roles.APPROVER), business=editor.business)
@@ -134,6 +143,7 @@ def test_approver_cannot_edit_product(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies cross-business product access returns 404 to avoid object existence leaks.
 def test_cross_business_access_returns_404(api_client, auth_tokens):
     owner_a = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
     owner_b = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
@@ -147,6 +157,7 @@ def test_cross_business_access_returns_404(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies editors list only products they created within their business.
 def test_editor_only_sees_own_products(api_client, auth_tokens):
     editor_a = UserFactory(role=get_role(Roles.EDITOR))
     editor_b = UserFactory(role=get_role(Roles.EDITOR), business=editor_a.business)
@@ -167,6 +178,7 @@ def test_editor_only_sees_own_products(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies reject endpoint requires reason and stores rejected status with message.
 def test_reject_requires_reason_and_sets_rejected_state(api_client, auth_tokens):
     editor = UserFactory(role=get_role(Roles.EDITOR))
     approver = UserFactory(role=get_role(Roles.APPROVER), business=editor.business)
@@ -189,6 +201,7 @@ def test_reject_requires_reason_and_sets_rejected_state(api_client, auth_tokens)
 
 
 @pytest.mark.django_db
+# Verifies editors can resubmit rejected products and clear prior rejection reason.
 def test_editor_can_resubmit_rejected_product(api_client, auth_tokens):
     editor = UserFactory(role=get_role(Roles.EDITOR))
     product = ProductFactory(
@@ -208,6 +221,7 @@ def test_editor_can_resubmit_rejected_product(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies public listing returns only approved products and exposes image URL.
 def test_public_endpoint_shows_only_approved(api_client):
     business = BusinessFactory()
     editor = UserFactory(role=get_role(Roles.EDITOR), business=business)
@@ -227,6 +241,7 @@ def test_public_endpoint_shows_only_approved(api_client):
 
 
 @pytest.mark.django_db
+# Verifies admin and owner statistics endpoints return expected metric fields.
 def test_statistics_endpoints(api_client, auth_tokens):
     admin = UserFactory(role=get_role(Roles.ADMIN), business=None)
     owner = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
@@ -248,6 +263,7 @@ def test_statistics_endpoints(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies admins can list audit logs, delete single rows, and clear all logs.
 def test_admin_can_list_and_manage_audit_logs(api_client, auth_tokens):
     admin = UserFactory(role=get_role(Roles.ADMIN), business=None)
     owner = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
@@ -271,6 +287,7 @@ def test_admin_can_list_and_manage_audit_logs(api_client, auth_tokens):
 
 
 @pytest.mark.django_db
+# Verifies non-admin users are forbidden from accessing audit-log endpoints.
 def test_non_admin_cannot_access_audit_logs(api_client, auth_tokens):
     owner = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
     tokens = auth_tokens(owner)
