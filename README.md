@@ -4,7 +4,7 @@ Full-stack role-based product marketplace built with:
 ## Backend: 
     Django + Django REST Framework
 ## Frontend: 
-    Next.js (App Router) + React + MUI + Tailwind
+    Next.js  + MUI + Tailwind
 
 ## What Was Implemented
 
