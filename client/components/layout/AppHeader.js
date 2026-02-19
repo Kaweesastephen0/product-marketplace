@@ -3,6 +3,8 @@
 import { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import PersonOutlineOutlined from "@mui/icons-material/PersonOutlineOutlined";
+import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
 
 // Renders the dashboard header, profile menu, and quick actions.
 export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogout, onOpenProfile }) {
@@ -17,7 +19,7 @@ export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogo
           onClick={onOpenSidebar}
           aria-label="Open menu"
         >
-          <MenuIcon fontSize="small" />
+          <MenuIcon fontSize="medium" />
         </button>
 
         <div className="min-w-0 flex-1">
@@ -38,7 +40,7 @@ export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogo
               <span className="block text-sm leading-tight">{user?.email || "User"}</span>
               <span className="block text-xs capitalize leading-tight text-[#6f6c63]">{user?.role || "role"}</span>
             </span>
-            <ExpandMoreIcon fontSize="small" />
+            <ExpandMoreIcon fontSize="medium" />
           </button>
 
           {menuOpen ? (
@@ -50,8 +52,9 @@ export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogo
                   setMenuOpen(false);
                   onOpenProfile?.();
                 }}
-                className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[#211f1a] hover:bg-[#f5f4ef]"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-[#211f1a] hover:bg-[#f5f4ef]"
               >
+                <PersonOutlineOutlined fontSize="medium" />
                 Profile
               </button>
               <button
@@ -60,8 +63,9 @@ export default function AppHeader({ title, subtitle, user, onOpenSidebar, onLogo
                   setMenuOpen(false);
                   onLogout();
                 }}
-                className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[#211f1a] hover:bg-[#f5f4ef]"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-[#211f1a] hover:bg-[#f5f4ef]"
               >
+                <LogoutOutlined fontSize="medium" />
                 Logout
               </button>
             </div>

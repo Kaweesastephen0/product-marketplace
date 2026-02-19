@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { useProductsQuery } from "@/components/features/products/useProductsQuery";
-import { useProductMutations } from "@/components/features/products/useProductMutations";
+import { useProductsQuery } from "@/components/products/useProductsQuery";
+import { useProductMutations } from "@/components/products/useProductMutations";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import IconInput from "@/components/ui/IconInput";
 import Modal from "@/components/ui/Modal";

@@ -46,7 +46,7 @@ function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
                     expanded ? "min-w-9.5" : "min-w-0"
                   }`}
                 >
-                  <Icon fontSize="small" />
+                  <Icon fontSize="medium" />
                 </span>
                 <span
                   className={`overflow-hidden whitespace-nowrap text-left text-sm leading-5 transition-all duration-300 ${
@@ -72,7 +72,7 @@ function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
         >
           <span
             className={`overflow-hidden whitespace-nowrap text-[13px] transition-all duration-300 ${
-              expanded ? "max-w-[160px] opacity-100" : "max-w-0 opacity-0"
+              expanded ? "max-w-40 opacity-100" : "max-w-0 opacity-0"
             }`}
           >
             Public Listing
@@ -97,11 +97,11 @@ function SidebarContent({ items, activeKey, expanded, onSelect, onLogout }) {
               expanded ? "min-w-9.5" : "min-w-0"
             }`}
           >
-            <LogoutOutlined fontSize="small" />
+            <LogoutOutlined fontSize="medium" />
           </span>
           <span
             className={`overflow-hidden whitespace-nowrap text-left text-[13px] transition-all duration-300 ${
-              expanded ? "max-w-[160px] opacity-100" : "max-w-0 opacity-0"
+              expanded ? "max-w-40 opacity-100" : "max-w-0 opacity-0"
             }`}
           >
             Logout
@@ -128,7 +128,7 @@ export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, o
         }}
       >
         <aside
-          className="fixed left-0 top-0 z-[1200] h-screen border-r border-[#ded9cb] bg-[#fffef9]"
+          className="fixed left-0 top-0 z-1200 h-screen border-r border-[#ded9cb] bg-[#fffef9]"
           style={{
             width: currentWidth,
             transition: "width 320ms cubic-bezier(0.4, 0, 0.2, 1)",
@@ -148,13 +148,13 @@ export default function HoverSidebar({ items, activeKey, onSelect, mobileOpen, o
 
       {mobileOpen ? (
         <div
-          className="fixed inset-0 z-[1300] flex bg-black/35 md:hidden"
+          className="fixed inset-0 z-1300 flex bg-black/35 md:hidden"
           onClick={onMobileClose}
           role="button"
           tabIndex={-1}
         >
           <aside
-            className="h-full w-[250px] border-r border-[#ded9cb] bg-[#fffef9]"
+            className="h-full w-62.5 border-r border-[#ded9cb] bg-[#fffef9]"
             style={{ animation: "sidebar-slide-in 220ms ease" }}
             onClick={(event) => event.stopPropagation()}
           >

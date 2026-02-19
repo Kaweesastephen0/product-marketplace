@@ -245,3 +245,36 @@ def test_statistics_endpoints(api_client, auth_tokens):
     assert owner_stats.status_code == 200
     assert owner_stats.json()["pending_approvals"] == 1
     assert "rejected_products" in owner_stats.json()
+
+
+@pytest.mark.django_db
+def test_admin_can_list_and_manage_audit_logs(api_client, auth_tokens):
+    admin = UserFactory(role=get_role(Roles.ADMIN), business=None)
+    owner = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
+    ProductFactory(business=owner.business, created_by=owner, status=ProductStatus.DRAFT)
+
+    tokens = auth_tokens(admin)
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
+
+    list_response = api_client.get("/api/admin/audit-logs/")
+    assert list_response.status_code == 200
+    assert "results" in list_response.json()
+
+    rows = list_response.json()["results"]
+    if rows:
+        delete_response = api_client.delete(f"/api/admin/audit-logs/{rows[0]['id']}/")
+        assert delete_response.status_code == 204
+
+    clear_response = api_client.delete("/api/admin/audit-logs/clear/")
+    assert clear_response.status_code == 200
+    assert "deleted" in clear_response.json()
+
+
+@pytest.mark.django_db
+def test_non_admin_cannot_access_audit_logs(api_client, auth_tokens):
+    owner = UserFactory(role=get_role(Roles.BUSINESS_OWNER))
+    tokens = auth_tokens(owner)
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens['access']}")
+
+    response = api_client.get("/api/admin/audit-logs/")
+    assert response.status_code == 403

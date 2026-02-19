@@ -2,9 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import MetricCards from "@/components/features/dashboard/MetricCards";
-import ProductManagerPanel from "@/components/features/dashboard/ProductManagerPanel";
-import UserManagementPanel from "@/components/features/dashboard/UserManagementPanel";
+import MetricCards from "@/components/dashboard/MetricCards";
+import ProductManagerPanel from "@/components/dashboard/ProductManagerPanel";
+import UserManagementPanel from "@/components/dashboard/UserManagementPanel";
 import { businessService } from "@/lib/services/business.service";
 
 // Renders owner metrics plus user and product management sections.

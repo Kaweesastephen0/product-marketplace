@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.api.permissions import IsAdminOrBusinessOwner, IsSystemAdmin
 from accounts.api.serializers import (
+    AuditLogReadSerializer,
     AdminUserUpdateSerializer,
     BusinessOwnerCreateSerializer,
     CustomTokenObtainPairSerializer,
@@ -20,6 +23,7 @@ from accounts.api.serializers import (
     ViewerRegistrationSerializer,
 )
 from accounts.constants import Roles
+from accounts.models import AuditLog
 from accounts.services import UserService
 from businesses.models import Business
 
@@ -188,3 +192,49 @@ class ViewerRegistrationAPIView(generics.GenericAPIView):
             business=business,
         )
         return Response(UserReadSerializer(user).data, status=status.HTTP_201_CREATED)
+
+
+class AdminAuditLogListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsSystemAdmin]
+    serializer_class = AuditLogReadSerializer
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        queryset = AuditLog.objects.select_related("actor", "business").all()
+        action = self.request.query_params.get("action")
+        target_type = self.request.query_params.get("target_type")
+        business_id = self.request.query_params.get("business_id")
+        search = self.request.query_params.get("search")
+
+        if action:
+            queryset = queryset.filter(action=action)
+        if target_type:
+            queryset = queryset.filter(target_type=target_type)
+        if business_id:
+            queryset = queryset.filter(business_id=business_id)
+        if search:
+            queryset = queryset.filter(
+                Q(action__icontains=search)
+                | Q(target_type__icontains=search)
+                | Q(target_id__icontains=search)
+                | Q(actor__email__icontains=search)
+            )
+
+        return queryset
+
+
+class AdminAuditLogClearAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsSystemAdmin]
+
+    def delete(self, request):
+        deleted_count, _ = AuditLog.objects.all().delete()
+        return Response({"deleted": deleted_count}, status=status.HTTP_200_OK)
+
+
+class AdminAuditLogDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsSystemAdmin]
+
+    def delete(self, request, pk):
+        audit_log = get_object_or_404(AuditLog.objects.all(), pk=pk)
+        audit_log.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

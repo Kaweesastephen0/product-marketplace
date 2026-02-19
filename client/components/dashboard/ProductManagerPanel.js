@@ -12,8 +12,8 @@ import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import IconInput from "@/components/ui/IconInput";
 import TablePagination from "@/components/ui/TablePagination";
-import { useProductsQuery } from "@/components/features/products/useProductsQuery";
-import { useProductMutations } from "@/components/features/products/useProductMutations";
+import { useProductsQuery } from "@/components/products/useProductsQuery";
+import { useProductMutations } from "@/components/products/useProductMutations";
 import { useNotify } from "@/hooks/useNotify";
 
 const emptyForm = { name: "", description: "", price: "", image_url: "", image: null };

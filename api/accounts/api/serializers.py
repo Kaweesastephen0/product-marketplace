@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from accounts.constants import OWNER_MANAGED_ROLES, Roles
+from accounts.models import AuditLog
 from businesses.models import Business
 
 User = get_user_model()
@@ -25,6 +26,26 @@ class UserReadSerializer(serializers.ModelSerializer):
             "date_joined",
             "business_id",
             "business_name",
+        )
+        read_only_fields = fields
+
+
+class AuditLogReadSerializer(serializers.ModelSerializer):
+    actor_email = serializers.EmailField(source="actor.email", read_only=True)
+    business_name = serializers.CharField(source="business.name", read_only=True)
+
+    class Meta:
+        model = AuditLog
+        fields = (
+            "id",
+            "action",
+            "actor_email",
+            "business_id",
+            "business_name",
+            "target_type",
+            "target_id",
+            "metadata",
+            "created_at",
         )
         read_only_fields = fields
 
