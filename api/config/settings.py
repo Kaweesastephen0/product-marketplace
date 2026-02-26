@@ -4,7 +4,7 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-change-me"
+SECRET_KEY = "iutyrsfdgyugijhjiuhjgdtedgfdhfguihlkjkjdrerzfxnmgjk.oiugyftddzsr"
 DEBUG = True
 ALLOWED_HOSTS = []
 
